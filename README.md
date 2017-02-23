@@ -2,7 +2,7 @@
 
 > A Vue.js project
 
-## Build Setup
+## 搭建步骤  
 
 ``` bash
 # install dependencies
@@ -15,7 +15,6 @@ npm run dev
 npm run build
 ```
 
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 ## 项目说明
 
@@ -40,3 +39,5 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 
 
 
+
+For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
