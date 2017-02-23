@@ -405,7 +405,7 @@ menu {
 }
 
 body {
-    -webkit-user-select: none;
+    //-webkit-user-select: none;//文字复制
     -webkit-text-size-adjust: none;
     font-family: Arial, helvetica, "微软雅黑", "Microsoft Yahei", sans-serif;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
