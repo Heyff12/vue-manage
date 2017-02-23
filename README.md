@@ -25,10 +25,8 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 
 2、首页（昨日数据）——修改密码（弹框、form表单校验）、退出登陆（state状态更改）、echarts折线图  
 
-3、渠道管理--渠道信息列表（table）显示及筛选   
+3、渠道管理--渠道信息列表（table）显示及筛选;新增渠道（form表单校验）    
 
-            新增渠道（form表单校验）  
-             
 4、商户管理——信息列表（table）显示及筛选  
 
 5、业务员管理——信息列表（table）显示及筛选   
