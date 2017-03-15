@@ -7,7 +7,7 @@ export default {
     props: ['msg', 'visible'],
     data() {
         return {
-            myvisible: this.visible ,//data中新增字段
+            myvisible: this.visible, //data中新增字段
             mymsg: this.msg //data中新增字段
         }
     },
@@ -16,20 +16,20 @@ export default {
             this.myvisible = val; //新增visible的watch，监听变更并同步到myvisible上
         },
         myvisible(val) {
-            if(val==true){
+            if (val == true) {
                 setTimeout(() => {
-                  this.myvisible = false;
-                  this.$emit("on-visible-change", val); //③组件内对myvisible变更后向外部发送事件通知
+                    this.myvisible = false;
+                    this.$emit("on-visible-change", val); //③组件内对myvisible变更后向外部发送事件通知
                 }, 3000);
-            }else{
+            } else {
                 this.$emit("on-visible-change", val); //③组件内对myvisible变更后向外部发送事件通知
-            }            
+            }
         },
         msg(val) {
-            this.mymsg = val; 
+            this.mymsg = val;
         },
         mymsg(val) {
-            this.$emit("on-msg-change", val); 
+            this.$emit("on-msg-change", val);
         },
     },
     methods: {
@@ -101,14 +101,13 @@ div.toast_data_short {
     top: 50%;
     left: 50%;
     margin-top: -30px;
-}
-
-.close {
-    position: absolute;
-    top: 5px;
-    right: 15px;
-    font-size: 20px;
-    color: white;
-    opacity: 1;
+    .close {
+        position: absolute;
+        top: 5px;
+        right: 15px;
+        font-size: 20px;
+        color: white;
+        opacity: 1;
+    }
 }
 </style>

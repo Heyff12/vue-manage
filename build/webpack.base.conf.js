@@ -2,7 +2,7 @@ var path = require('path')
 var config = require('../config')
 var utils = require('./utils')
 var projectRoot = path.resolve(__dirname, '../')
-
+var px2rem = require('postcss-px2rem');
 
 const vuxLoader = require('vux-loader')
 

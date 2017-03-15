@@ -8,37 +8,38 @@
                 <el-row :gutter="30">
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="渠道编号：">
-                            <el-input v-model="searchkey.id"></el-input>
+                            <el-input v-model.trim="searchkey.id"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="渠道名称：">
-                            <el-input v-model="searchkey.name"></el-input>
+                            <el-input v-model.trim="searchkey.name"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="6">
+                    <el-col :xs="24" :sm="24" :md="12" :lg="12">
                         <el-form-item label="时间区间：">
-                            <el-date-picker v-model="searchkey.daterange" type="daterange" align="right" placeholder="选择日期范围" :picker-options="pickerOptions">
+                            <el-date-picker v-model="searchkey.daterange" type="daterange" align="right" placeholder="选择日期范围" :picker-options="pickerOptions" :editable="false" @change="time_change">
                             </el-date-picker>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="商户编号：">
-                            <el-input v-model="searchkey.userid"></el-input>
+                            <el-input v-model.trim="searchkey.userid"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="商户名称：">
-                            <el-input v-model="searchkey.shopname"></el-input>
+                            <el-input v-model.trim="searchkey.shopname"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="手机号：">
-                            <el-input v-model="searchkey.mobile"></el-input>
+                            <el-input v-model.trim="searchkey.mobile"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
-                        <el-form-item>
+                        <el-form-item label-width="0" class="t_c">
+                            <!-- <el-button type="default" @click="fresh_sub">刷新</el-button> -->
                             <el-button type="primary" @click="search_sub">查询</el-button>
                         </el-form-item>
                     </el-col>
@@ -80,15 +81,8 @@
     </div>
 </template>
 <script>
-import load from '../../components/load'
-import toast from '../../components/toast'
-
 export default {
     name: 'merchant_index',
-    components: {
-        load,
-        toast,
-    },
     data() {
         return {
             loading: false, //load是否显示
@@ -112,9 +106,8 @@ export default {
             pages: 1, //总页数
             merchants_mid: [], //搜索后的总信息
             merchants_now: [], //当前展示信息
-            title: '开始时间',
-            daterange_data: '',
             pickerOptions: {
+                disabledDate: (time) => time.getTime() > Date.now(),
                 shortcuts: [{
                     text: '最近一周',
                     onClick(picker) {
@@ -167,82 +160,111 @@ export default {
         get_list: function() {
             let _this = this;
             let post_data = {
-                'pos': 0,
-                'count': 10000000,
-                'query': {
-                    'mchnt_uid': '',
-                    'mchnt_name': '',
-                    'mchnt_mobile': '',
-                    'mchnt_s_join_dtm': '',
-                    'mchnt_e_join_dtm': '',
-                    'qd_uid': '',
-                    'qd_name': '',
-                    'qd_status': '',
-                }
+                'page': _this.page_now,
+                'page_size': _this.page_per,
+                'mchnt_uid': _this.searchkey.userid,
+                'mchnt_name': _this.searchkey.shopname,
+                'mchnt_mobile': _this.searchkey.mobile,
+                'mchnt_s_join_dtm': _this.searchkey.stime,
+                'mchnt_e_join_dtm': _this.searchkey.etime,
+                'qd_uid': _this.searchkey.id,
+                'qd_name': _this.searchkey.name,
+                'qd_status': _this.searchkey.slsm_uid,
             };
-            // this.$http.get(this.list_url, {
-            //         'params': post_data,
-            //         before: function() {
-            //             _this.loading = true;
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         _this.loading = false;
-            //         let data_return = response.body;
-            //         if (data_return.respcd == '0000') {
-            //             _this.merchants = data_return.data;
-            //             _this.merchants_mid = _this.merchants;
-            //             _this.pages_all = _this.merchants_mid.length;
-            //             _this.merchants_now = _this.merchants_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
-            //         } else {
-            //             if (data_return.respmsg) {
-            //                 _this.toastmsg = data_return.respmsg;
-            //             } else {
-            //                 _this.toastmsg = data_return.resperr;
-            //             }
-            //             _this.visible_toast = true;
-            //         }
-            //     }, function(response) {
-            //         _this.loading = false;
-            //         _this.visible_toast = true;
-            //         _this.toastmsg = '网络超时!';
-            //     })
-            //     .catch(function(response) {
-            //         _this.loading = false;
-            //     }); 
+            this.$http.get(this.list_url, {
+                    'params': post_data,
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    let data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        // _this.merchants = data_return.data;
+                        // _this.merchants_mid = _this.merchants;
+                        // _this.pages_all = _this.merchants_mid.length;
+                        // _this.merchants_now = _this.merchants_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+                        _this.pages_all = data_return.data.mchnt_cnt;
+                        _this.merchants_now = data_return.data.mchnt_infos;
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
             //列表测试数据--仅供测试
-            _this.getdata_test();           
+            //_this.getdata_test();
+        },
+        //时间变化
+        time_change(val) {
+            if (val.length == 0) {
+                this.searchkey.stime = '';
+                this.searchkey.etime = '';
+            } else {
+                let timerange = val.split(' - ');
+                this.searchkey.stime = timerange[0] + ' 00:00:00';
+                this.searchkey.etime = timerange[1] + ' 23:59:59';
+            }
         },
         //提交查询
         search_sub: function() {
+            // var _this = this;
+            // _this.merchants_mid = [];
+            // var key_id = this.searchkey.id;
+            // var key_name = this.searchkey.name;
+            // var key_userid = this.searchkey.userid;
+            // var key_shopname = this.searchkey.shopname;
+            // var key_mobile = this.searchkey.mobile;
+            // var key_date = this.searchkey.daterange;
+            // console.log(this.searchkey);
+            // var key_stime = 0,
+            //     key_etime = new Date().getTime();
+            // if (key_date[0]) {
+            //     var k_stime = _this.get_date(key_date[0]) + ' 00:00:00';
+            //     var k_etime = _this.get_date(key_date[1]) + ' 23:59:59';
+            //     key_stime = new Date(k_stime).getTime();
+            //     key_etime = new Date(k_etime).getTime();
+            // }
+            // for (let i = 0; i < _this.merchants.length; i++) {
+            //     let id = _this.merchants[i].qd_info.base.userid.toString();
+            //     let name = _this.merchants[i].qd_info.base.name;
+            //     let userid = _this.merchants[i].userid.toString();
+            //     let shopname = _this.merchants[i].shopname;
+            //     let mobile = _this.merchants[i].mobile;
+            //     let jointime = new Date(_this.merchants[i].jointime).getTime();
+            //     if (id.indexOf(key_id) != '-1' && name.indexOf(key_name) != '-1' && userid.indexOf(key_userid) != '-1' && shopname.indexOf(key_shopname) != '-1' && mobile.indexOf(key_mobile) != '-1' && key_etime >= jointime && jointime >= key_stime) {
+            //         _this.merchants_mid.push(_this.merchants[i]);
+            //     }
+            // }
+            // return _this.merchants_mid;
+            this.get_list();
+        },
+        //清空并刷新--更改成ajax提交，取消使用
+        fresh_sub: function() {
             var _this = this;
-            _this.merchants_mid = [];
-            var key_id = this.searchkey.id;
-            var key_name = this.searchkey.name;
-            var key_userid = this.searchkey.userid;
-            var key_shopname = this.searchkey.shopname;
-            var key_mobile = this.searchkey.mobile;
-            var key_date = this.searchkey.daterange;
-            var key_stime = 0,
-                key_etime = new Date().getTime();
-            if (key_date[0]) {
-                var k_stime = _this.get_date(key_date[0]) + ' 00:00:00';
-                var k_etime = _this.get_date(key_date[1]) + ' 23:59:59';
-                key_stime = new Date(k_stime).getTime();
-                key_etime = new Date(k_etime).getTime();
-            }
-            for (let i = 0; i < _this.merchants.length; i++) {
-                let id = _this.merchants[i].qd_info.base.userid.toString();
-                let name = _this.merchants[i].qd_info.base.name;
-                let userid = _this.merchants[i].userid.toString();
-                let shopname = _this.merchants[i].shopname;
-                let mobile = _this.merchants[i].mobile;
-                let jointime = new Date(_this.merchants[i].jointime).getTime();
-                if (id.indexOf(key_id) != '-1' && name.indexOf(key_name) != '-1' && userid.indexOf(key_userid) != '-1' && shopname.indexOf(key_shopname) != '-1' && mobile.indexOf(key_mobile) != '-1' && key_etime >= jointime && jointime >= key_stime) {
-                    _this.merchants_mid.push(_this.merchants[i]);
-                }
-            }
-            return _this.merchants_mid;
+            _this.searchkey = {
+                id: '',
+                name: '',
+                userid: '',
+                shopname: '',
+                mobile: '',
+                stime: '',
+                etime: '',
+                daterange: '',
+            }; //清空搜索内容
+            _this.page_now = 1; //页数回到第一页
+            _this.get_list(); //获取最新列表
         },
         get_date: function(date) {
             var year = date.getFullYear();
@@ -252,21 +274,22 @@ export default {
         },
         handleSizeChange(val) {
             let _this = this;
-            console.log(`每页 ${val} 条`);
+            //console.log(`每页 ${val} 条`);
             _this.page_per = val;
             _this.page_now = 1;
-            _this.merchants_now = _this.merchants_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            // _this.merchants_now = _this.merchants_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            this.get_list();
         },
         handleCurrentChange(val) {
-            //this.currentPage = val;
-            console.log(`当前页: ${val}`);
+            //console.log(`当前页: ${val}`);
             let _this = this;
             _this.page_now = val;
-            _this.merchants_now = _this.merchants_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            // _this.merchants_now = _this.merchants_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            this.get_list();
         },
         //列表测试数据--仅供测试
-        getdata_test(){
-            let _this=this;
+        getdata_test() {
+            let _this = this;
             _this.merchants = [{
                 "qd_info": {
                     "base": {
@@ -452,7 +475,7 @@ export default {
                 "mobile": "13012341111", // 商户手机号码
                 "state": 1, // 商户状态
                 "jointime": "2016-01-01 12:22:23", // 注册时间
-            },{
+            }, {
                 "qd_info": {
                     "base": {
                         "userid": 123, // 渠道编号
@@ -637,7 +660,7 @@ export default {
                 "mobile": "13012341111", // 商户手机号码
                 "state": 1, // 商户状态
                 "jointime": "2016-01-01 12:22:23", // 注册时间
-            },{
+            }, {
                 "qd_info": {
                     "base": {
                         "userid": 123, // 渠道编号
@@ -822,7 +845,7 @@ export default {
                 "mobile": "13012341111", // 商户手机号码
                 "state": 1, // 商户状态
                 "jointime": "2016-01-01 12:22:23", // 注册时间
-            },{
+            }, {
                 "qd_info": {
                     "base": {
                         "userid": 123, // 渠道编号
@@ -1017,10 +1040,8 @@ export default {
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" rel="stylesheet/less">
-
-
-.el-date-editor--daterange.el-input {
-    /*width: 204px;*/
-    width: 70%;
-}
+// .el-date-editor--daterange.el-input {
+//     /*width: 204px;*/
+//     width: 70%;
+// }
 </style>

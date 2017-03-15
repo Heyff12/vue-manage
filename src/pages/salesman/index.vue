@@ -8,17 +8,17 @@
                 <el-row :gutter="30">
                     <el-col :xs="24" :sm="24" :md="12" :lg="4">
                         <el-form-item label="业务员编号：">
-                            <el-input v-model="searchkey.slsm_uid"></el-input>
+                            <el-input v-model.trim="searchkey.slsm_uid"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="4">
                         <el-form-item label="业务员名称：">
-                            <el-input v-model="searchkey.slsm_name"></el-input>
+                            <el-input v-model.trim="searchkey.slsm_name"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="4">
                         <el-form-item label="手机号：">
-                            <el-input v-model="searchkey.slsm_mobile"></el-input>
+                            <el-input v-model.trim="searchkey.slsm_mobile"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="4">
@@ -31,7 +31,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="4">
-                        <el-form-item>
+                        <el-form-item label-width="0" class="t_c">
+                            <!-- <el-button type="default" @click="fresh_sub">刷新</el-button> -->
                             <el-button type="primary" @click="search_sub">查询</el-button>
                         </el-form-item>
                     </el-col>
@@ -55,7 +56,7 @@
                     </el-table-column>
                     <el-table-column label="操作" resizable min-width="100px">
                         <template scope="scope">
-                            <el-button type="info" @click="open_dialog(scope.row)">业务统计</el-button>
+                            <el-button type="info" @click="open_dialog(scope.row.slsm_uid)">业务统计</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -75,24 +76,22 @@
                 <el-table-column align="center" property="audit_succ" label="审核成功" resizable min-width="100px"></el-table-column>
                 <el-table-column align="center" property="audit_fail" label="审核失败" resizable min-width="100px"></el-table-column>
                 <el-table-column align="center" property="audit_reject" label="审核拒绝" resizable min-width="100px"></el-table-column>
-                <el-table-column align="center" property="trade_amt" label="交易金额" resizable min-width="100px"></el-table-column>
+                <el-table-column align="center" property="trade_amt" label="交易金额" resizable min-width="100px">
+                    <template scope="scope">
+                        {{scope.row.trade_amt | yuan}}
+                    </template>
+                </el-table-column>
             </el-table>
             <p class="dialog_p">
-                合计：发展商户{{saleman.total.mchnt_count}}个；审核成功{{saleman.total.audit_succ}}个；审核失败{{saleman.total.audit_fail}}个；审核拒绝{{saleman.total.audit_reject}}个；交易金额{{saleman.total.trade_amt}}元。
+                合计：发展商户{{saleman.total.mchnt_count}}个；审核成功{{saleman.total.audit_succ}}个；审核失败{{saleman.total.audit_fail}}个；审核拒绝{{saleman.total.audit_reject}}个；交易金额{{saleman.total.trade_amt | yuan}}元。
             </p>
         </el-dialog>
     </div>
 </template>
 <script>
-import load from '../../components/load'
-import toast from '../../components/toast'
 
 export default {
     name: 'merchant_index',
-    components: {
-        load,
-        toast,
-    },
     data() {
         return {
             loading: false, //load是否显示
@@ -137,13 +136,19 @@ export default {
     created: function() {
         this.get_list(); //获取商户列表 
     },
+    // filters: {
+    //     yuan: function(value) {
+    //         if (!value) return ''
+    //         return (value / 100).toFixed(2)
+    //     }
+    // },
     watch: {
-        salesmen_mid: function(val, oldVal) {
-            var _this = this;
-            _this.pages_all = _this.salesmen_mid.length;
-            _this.page_now = 1;
-            _this.salesmen_now = _this.salesmen_mid.slice(0, _this.page_now * _this.page_per);
-        },
+        // salesmen_mid: function(val, oldVal) {
+        //     var _this = this;
+        //     _this.pages_all = _this.salesmen_mid.length;
+        //     _this.page_now = 1;
+        //     _this.salesmen_now = _this.salesmen_mid.slice(0, _this.page_now * _this.page_per);
+        // },
     },
     methods: {
         //监听toast是否可见的值得变化
@@ -158,112 +163,147 @@ export default {
         get_list: function() {
             let _this = this;
             let post_data = {
-                'slsm_uid': '',
-                'slsm_name': '',
-                'slsm_mobile': '',
-                'slsm_status': '',
+                'page': _this.page_now,
+                'page_size': _this.page_per,
+                'slsm_uid': _this.searchkey.slsm_uid,
+                'slsm_name': _this.searchkey.slsm_name,
+                'slsm_mobile': _this.searchkey.slsm_mobile,
+                'slsm_status': _this.searchkey.slsm_status,
             };
-            // this.$http.get(this.slsm_url, {
-            //         'params': post_data,
-            //         before: function() {
-            //             _this.loading = true;
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         _this.loading = false;
-            //         let data_return = response.body;
-            //         if (data_return.respcd == '0000') {
-            //             _this.salesmen = data_return.data;
-            //             _this.salesmen_mid = _this.salesmen;
-            //             _this.pages_all = _this.salesmen_mid.length;
-            //             _this.salesmen_now = _this.salesmen_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
-            //         } else {
-            //             if (data_return.respmsg) {
-            //                 _this.toastmsg = data_return.respmsg;
-            //             } else {
-            //                 _this.toastmsg = data_return.resperr;
-            //             }
-            //             _this.visible_toast = true;
-            //         }
-            //     }, function(response) {
-            //         _this.loading = false;
-            //         _this.visible_toast = true;
-            //         _this.toastmsg = '网络超时!';
-            //     })
-            //     .catch(function(response) {
-            //         _this.loading = false;
-            //     });
+            this.$http.get(this.slsm_url, {
+                    'params': post_data,
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    let data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        // _this.salesmen = data_return.data;
+                        // _this.salesmen_mid = _this.salesmen;
+                        // _this.pages_all = _this.salesmen_mid.length;
+                        // _this.salesmen_now = _this.salesmen_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+                        _this.pages_all = data_return.data.slsm_cnt;
+                        _this.salesmen_now = data_return.data.slsm_infos;
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
             //列表测试数据--仅供测试
-            _this.getdata_test();
+            //_this.getdata_test();
         },
         //提交查询
         search_sub: function() {
+            // var _this = this;
+            // _this.salesmen_mid = [];
+            // var key_userid = this.searchkey.slsm_uid;
+            // var key_name = this.searchkey.slsm_name;
+            // var key_mobile = this.searchkey.slsm_mobile;
+            // var key_status = this.searchkey.slsm_status;
+            // for (let i = 0; i < _this.salesmen.length; i++) {
+            //     let userid = _this.salesmen[i].slsm_uid.toString();
+            //     let name = _this.salesmen[i].slsm_name;
+            //     let mobile = _this.salesmen[i].slsm_mobile;
+            //     let status = _this.salesmen[i].slsm_status.toString();
+            //     if (userid.indexOf(key_userid) != '-1' && name.indexOf(key_name) != '-1' && mobile.indexOf(key_mobile) != '-1' && status.indexOf(key_status) != '-1') {
+            //         _this.salesmen_mid.push(_this.salesmen[i]);
+            //     }
+            // }
+            // return _this.salesmen_mid;
+            this.get_list();
+        },
+        //清空并刷新---更改成ajax，取消使用
+        fresh_sub: function() {
             var _this = this;
-            _this.salesmen_mid = [];
-            var key_userid = this.searchkey.slsm_uid;
-            var key_name = this.searchkey.slsm_name;
-            var key_mobile = this.searchkey.slsm_mobile;
-            var key_status = this.searchkey.slsm_status;
-            for (let i = 0; i < _this.salesmen.length; i++) {
-                let userid = _this.salesmen[i].slsm_uid.toString();
-                let name = _this.salesmen[i].slsm_name;
-                let mobile = _this.salesmen[i].slsm_mobile;
-                let status = _this.salesmen[i].slsm_status.toString();
-                if (userid.indexOf(key_userid) != '-1' && name.indexOf(key_name) != '-1' && mobile.indexOf(key_mobile) != '-1' && status.indexOf(key_status) != '-1') {
-                    _this.salesmen_mid.push(_this.salesmen[i]);
-                }
-            }
-            return _this.salesmen_mid;
+            _this.searchkey = {
+                slsm_uid: '',
+                slsm_name: '',
+                slsm_mobile: '',
+                slsm_status: '',
+            }; //清空搜索内容
+            _this.page_now = 1; //页数回到第一页
+            _this.get_list(); //获取最新列表
         },
         //打开弹框
-        open_dialog(row) {
+        open_dialog(id) {
             let _this = this;
-            let slsm_id = row.slsm_uid;
-            // this.$http.get(this.slsm_stat_url + slsm_id + '/stat', {
-            //         before: function() {
-            //             _this.loading = true;
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         _this.loading = false;
-            //         let data_return = response.body;
-            //         if (data_return.respcd == '0000') {
-            //             _this.saleman = data_return.data;
-            //             _this.dialogslsm = true; //打开弹框
-            //         } else {
-            //             if (data_return.respmsg) {
-            //                 _this.toastmsg = data_return.respmsg;
-            //             } else {
-            //                 _this.toastmsg = data_return.resperr;
-            //             }
-            //             _this.visible_toast = true;
-            //         }
-            //     }, function(response) {
-            //         _this.loading = false;
-            //         _this.visible_toast = true;
-            //         _this.toastmsg = '网络超时!';
-            //     })
-            //     .catch(function(response) {
-            //         _this.loading = false;
-            //     });
-            //仅供测试
-            _this.getdialog_test(row);            
+            let slsm_id = id;
+            this.$http.get(this.slsm_stat_url + slsm_id + '/stat', {
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    let data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        _this.saleman = data_return.data;
+                        _this.dialogslsm = true; //打开弹框
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
+            // _this.dialogslsm = true; //打开弹框
+            // _this.saleman = {
+            //     "slsm_name": "姓名",
+            //     "total": {
+            //         "mchnt_count": 10, // 发展商户数
+            //         "audit_succ": 5, // 审核成功数
+            //         "audit_fail": 3, // 审核失败数
+            //         "audit_reject": 2, // 审核拒绝数
+            //         "trade_amt": 123456, // 总交易金额
+            //     },
+            //     "monthly": [{
+            //         "date": "2016-12", // 年月
+            //         "mchnt_count": 10, // 发展商户数
+            //         "audit_succ": 5, // 审核成功数
+            //         "audit_fail": 3, // 审核失败数
+            //         "audit_reject": 2, // 审核拒绝数
+            //         "trade_amt": 123456, // 总交易金额
+            //     }]
+            // };
         },
         //更改每页显示信息条数
         handleSizeChange(val) {
             let _this = this;
-            console.log(`每页 ${val} 条`);
+            //console.log(`每页 ${val} 条`);
             _this.page_per = val;
             _this.page_now = 1;
-            _this.salesmen_now = _this.salesmen_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            // _this.salesmen_now = _this.salesmen_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            this.get_list();
         },
         //获取当前页信息
         handleCurrentChange(val) {
-            //this.currentPage = val;
-            console.log(`当前页: ${val}`);
+            //console.log(`当前页: ${val}`);
             let _this = this;
             _this.page_now = val;
-            _this.salesmen_now = _this.salesmen_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            // _this.salesmen_now = _this.salesmen_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            this.get_list();
         },
         //列表测试数据--仅供测试
         getdata_test() {
@@ -417,39 +457,11 @@ export default {
             _this.pages_all = _this.salesmen_mid.length;
             _this.salesmen_now = _this.salesmen_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
         },
-        //列表测试数据--仅供测试
-        getdialog_test(row) {
-            let _this = this;
-            _this.dialogslsm = true; //打开弹框
-            _this.saleman = {
-                "slsm_name": row.slsm_name,
-                "total": {
-                    "mchnt_count": 10, // 发展商户数
-                    "audit_succ": 5, // 审核成功数
-                    "audit_fail": 3, // 审核失败数
-                    "audit_reject": 2, // 审核拒绝数
-                    "trade_amt": 123456, // 总交易金额
-                },
-                "monthly": [{
-                    "date": "2016-12", // 年月
-                    "mchnt_count": 10, // 发展商户数
-                    "audit_succ": 5, // 审核成功数
-                    "audit_fail": 3, // 审核失败数
-                    "audit_reject": 2, // 审核拒绝数
-                    "trade_amt": 123456, // 总交易金额
-                }]
-            };
-        },
     },
 }
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" rel="stylesheet/less">
-.el-date-editor--daterange.el-input {
-    /*width: 204px;*/
-    width: 70%;
-}
-
 h1.dialog_h1 {
     width: auto;
     display: block;

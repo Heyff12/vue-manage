@@ -1,7 +1,7 @@
 <template>
     <!-- 获取登录名 、邮箱TODO-->
     <div id="app">
-        <div class="manage_body" :class="{hide:login}">
+        <div class="manage_body">
             <div class="header">
                 <header>
                     <div class="nav_menu_logo">
@@ -12,7 +12,37 @@
                                     渠道简称 -->
                         </router-link>
                     </div>
-                    <el-menu default-active="1" class="el-menu-vertical-demo" unique-opened="true" router="true" @open="handleOpen" @close="handleClose">
+                    <el-menu default-active="1" class="el-menu-vertical-demo" :unique-opened="true" :router="true" @open="handleOpen" @close="handleClose">
+                        <el-menu-item index="/">
+                            <i class="icon_left icon_yester_w"></i>昨日数据
+                        </el-menu-item>
+                        <el-submenu index="2">
+                            <template slot="title"><i class="icon_left icon_qudao_w"></i>渠道管理</template>
+                            <el-menu-item index="/channel_list">渠道管理</el-menu-item>
+                            <el-menu-item index="/channel_index">新增渠道</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="3">
+                            <template slot="title"><i class="icon_left icon_shanghu_w"></i>商户管理</template>
+                            <el-menu-item index="/merchant_index">商户管理</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="4">
+                            <template slot="title"><i class="icon_left icon_slsm_w"></i>业务员管理</template>
+                            <el-menu-item index="/salesman_index">业务员管理</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="5">
+                            <template slot="title"><i class="icon_left icon_trade_w"></i>交易管理</template>
+                            <el-menu-item index="/trade_index">交易管理</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="6">
+                            <template slot="title"><i class="icon_left icon_forms_w"></i>统计报表</template>
+                            <el-menu-item index="/form_merchantin">商户入网统计</el-menu-item>
+                            <el-menu-item index="/form_merchant">商户交易统计</el-menu-item>
+                            <el-menu-item index="/form_channelin">渠道商户入网统计</el-menu-item>
+                            <el-menu-item index="/form_channel">渠道交易统计</el-menu-item>
+                            <el-menu-item index="/form_member">业务员统计</el-menu-item>
+                        </el-submenu>
+                    </el-menu>
+                    <!-- <el-menu default-active="1" class="el-menu-vertical-demo" :unique-opened="true" :router="true" @open="handleOpen" @close="handleClose">
                         <el-menu-item index="1" route="/">
                             <i class="icon_left icon_yester_w"></i>昨日数据
                         </el-menu-item>
@@ -27,9 +57,21 @@
                         </el-submenu>
                         <el-submenu index="4">
                             <template slot="title"><i class="icon_left icon_slsm_w"></i>业务员管理</template>
-                            <el-menu-item index="3-1" route="/salesman_index">业务员管理</el-menu-item>
+                            <el-menu-item index="4-1" route="/salesman_index">业务员管理</el-menu-item>
                         </el-submenu>
-                    </el-menu>
+                        <el-submenu index="5">
+                            <template slot="title"><i class="icon_left icon_trade_w"></i>交易管理</template>
+                            <el-menu-item index="5-1" route="/trade_index">交易管理</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="6">
+                            <template slot="title"><i class="icon_left icon_forms_w"></i>统计报表</template>
+                            <el-menu-item index="6-1" route="/form_merchantin">商户入网统计</el-menu-item>
+                            <el-menu-item index="6-2" route="/form_merchant">商户交易统计</el-menu-item>
+                            <el-menu-item index="6-3" route="/form_channelin">渠道商户入网统计</el-menu-item>
+                            <el-menu-item index="6-4" route="/form_channel">渠道交易统计</el-menu-item>
+                            <el-menu-item index="6-5" route="/form_member">业务员统计</el-menu-item>
+                        </el-submenu>
+                    </el-menu> -->
                     <div class="clearfix"></div>
                     <div class="head_foot">Copyright <span class="orange"> © 2017</span></div>
                 </header>
@@ -43,7 +85,7 @@
                         <el-col :xs="16" :sm="16" :md="16" :lg="16" :offset="8">
                             <div class="manage_head_r">
                                 <span class="fr" v-on:click="quit_manage"><i class="icon_quit"></i>退出</span>
-                                <span>Welcome, {{base.name}}</span>
+                                <span>{{base.name}}</span>
                                 <span @click="passdialog=true"><i class="el-icon-setting mar_r6"></i>修改密码</span>
                                 <!-- <span class="fr" v-on:click="come_manage">登陆</span> -->
                             </div>
@@ -80,22 +122,25 @@
         </div>
         <load :visible="loading"></load>
         <toast :msg="toastmsg" :visible="visible_toast" @on-visible-change="onVisibleChange" @on-msg-change="onMsgChange"></toast>
+        <el-dialog title="" v-model="$store.state.login_no" size="tiny" top="35%">
+            <span class="dialog_text">
+                当前未登录，请点击“确定”按钮进入登录页重新登陆!
+            </span>
+            <div slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="tologin">确 定</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 <script>
-import home from './pages/home'
-import load from './components/load'
-import toast from './components/toast'
-import {
-    mapState
-} from 'vuex'
+// import load from '../../components/load'
+// import toast from '../../components/toast'
 export default {
     name: 'app',
-    components: {
-        home,
-        load,
-        toast
-    },
+    // components: {
+    //     load,
+    //     toast,
+    // },
     data() {
         var Pass_old = (rule, value, callback) => {
             if (value === '') {
@@ -145,14 +190,22 @@ export default {
             passes_rules: {
                 old_password: [{
                     required: true,
-                    pattern: /^[a-zA-Z0-9]{6,20}$/,
-                    message: '请输入旧密码，长度在 1 到 20 个字符',
+                    message: '请输入旧密码',
+                    trigger: 'blur'
+                }, {
+                    min: 6,
+                    max: 20,
+                    message: '长度在 6 到 20 个字符',
                     trigger: 'blur'
                 }],
                 new_password: [{
                     required: true,
-                    pattern: /^[a-zA-Z0-9]{6,20}$/,
-                    message: '请输入新密码，长度在 1 到 20 个字符',
+                    message: '请输入新密码',
+                    trigger: 'blur'
+                }, {
+                    min: 6,
+                    max: 20,
+                    message: '长度在 6 到 20 个字符',
                     trigger: 'blur'
                 }],
                 check_password: [{
@@ -166,14 +219,8 @@ export default {
             qd_info_url: location.protocol + '//' + location.host + '/qudao/v1/api/qd/info', //渠道基本信息
         }
     },
-    computed: mapState({
-        // 箭头函数可使代码更简练---是否显示公共部分的样式
-        login(state) {
-            return state.if_login
-        }
-    }),
     created: function() {
-        this.get_info(); //获取渠道信息 
+        this.get_info(); //获取渠道信息  
     },
     methods: {
         //监听toast是否可见的值得变化
@@ -192,48 +239,49 @@ export default {
         },
         //设置默认sessionid---上线将取消
         come_manage: function() {
-            this.$store.commit('login');
+            //this.$store.commit('login');
         },
         //退出
         quit_manage: function() {
             let _this = this;
-            this.$store.commit('logout');
-            // this.$http.post(this.quit_url, {
-            //         before: function() {
-            //             _this.loading = true;
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         _this.loading = false;
-            //         var data_return = response.body;
-            //         if (data_return.respcd == '0000') {
-            //             _this.visible_toast = true;
-            //             _this.toastmsg = '退出成功!';
-            //             window.location.href = location.protocol + '//' + location.host + '/qudao/v1/page/login.html'
-            //         } else {
-            //             if (data_return.respmsg) {
-            //                 _this.toastmsg = data_return.respmsg;
-            //             } else {
-            //                 _this.toastmsg = data_return.resperr;
-            //             }
-            //             _this.visible_toast = true;
-            //         }
-            //     }, function(response) {
-            //         _this.loading = false;
-            //         _this.visible_toast = true;
-            //         _this.toastmsg = '网络超时!';
-            //     })
-            //     .catch(function(response) {
-            //         _this.loading = false;
-            //     });
+            //this.$store.commit('logout');
+            this.$http.post(this.quit_url, {
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    var data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        _this.visible_toast = true;
+                        _this.toastmsg = '退出成功!';
+                        setTimeout(() => {
+                            window.location.href = location.protocol + '//' + location.host + '/qudao/v1/page/login.html'
+                        }, 1000);                        
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
         },
         //修改密码--点击确定
         mendpass: function() {
             let _this = this;
             this.$refs.pass.validate((valid) => {
                 if (valid) {
-                    this.$store.commit('logout');
-                    //_this.mendpass_post();
+                    _this.mendpass_post();
                 } else {
                     return false;
                 }
@@ -281,35 +329,35 @@ export default {
         //获取特定渠道的基本信息
         get_info: function() {
             var _this = this;
-            // this.$http.get(this.qd_info_url, {
-            //         before: function() {
-            //             _this.loading = true;
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         _this.loading = false;
-            //         var data_return = response.body;
-            //         if (data_return.respcd == '0000') {
-            //             _this.base = data_return.data.base;
-            //             if (_this.base.logo_url.length <= 0 || !_this.base.logo_url) {
-            //                 _this.base.logo_url = '/qudao/v1/static/login/img/logo.png';
-            //             }
-            //         } else {
-            //             if (data_return.respmsg) {
-            //                 _this.toastmsg = data_return.respmsg;
-            //             } else {
-            //                 _this.toastmsg = data_return.resperr;
-            //             }
-            //             _this.visible_toast = true;
-            //         }
-            //     }, function(response) {
-            //         _this.loading = false;
-            //         _this.visible_toast = true;
-            //         _this.toastmsg = '网络超时!';
-            //     })
-            //     .catch(function(response) {
-            //         _this.loading = false;
-            //     });
+            this.$http.get(this.qd_info_url, {
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    var data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        _this.base = data_return.data.base;
+                        if (_this.base.logo_url.length <= 0 || !_this.base.logo_url) {
+                            _this.base.logo_url = '/qudao/v1/static/login/img/logo.png';
+                        }
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
         },
     }
 }
@@ -370,14 +418,6 @@ img {
     vertical-align: top;
 }
 
-em {
-    font-style: normal;
-}
-
-strong {
-    font-weight: normal;
-}
-
 table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -405,7 +445,7 @@ menu {
 }
 
 body {
-    //-webkit-user-select: none;//文字复制
+    //-webkit-user-select: none;
     -webkit-text-size-adjust: none;
     font-family: Arial, helvetica, "微软雅黑", "Microsoft Yahei", sans-serif;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -634,7 +674,8 @@ body {
         position: fixed;
         color: white;
         z-index: 12;
-        display: block;        
+        display: block;
+        overflow-y: auto;
         .nav_menu_logo {
             text-align: center;
             margin: 0px 0px 10px;
@@ -657,6 +698,7 @@ body {
             width: 100%;
             text-align: center;
             font-size: 14px;
+            display: none;
         }
     }
     .main_main {
@@ -707,7 +749,7 @@ body {
         .home_body {
             width: 100%;
             box-sizing: border-box;
-            padding: 0px 50px 30px;
+            padding: 0px 30px 30px;
         }
         .right_body {
             width: 100%;
@@ -734,17 +776,6 @@ body {
                 color: @orange;
                 background-color: white;
                 border-color: @orange;
-            }
-        }
-    }
-    &.hide{
-        padding: 0;
-        div.header{
-            display: none;
-        }
-        .main_main{
-            .manage_head{
-                display: none;
             }
         }
     }
@@ -843,6 +874,16 @@ body {
                 background-size: 16px auto;
                 top: 2px;
             }
+            &.icon_trade_w {
+                background: url('./img/ic_jiaoyiguanliw.png') center center no-repeat;
+                background-size: 16px auto;
+                top: 2px;
+            }
+            &.icon_forms_w {
+                background: url('./img/ic_tongjiw.png') center center no-repeat;
+                background-size: 16px auto;
+                top: 2px;
+            }
         }
         &.is-opened {
             i.icon_left {
@@ -863,6 +904,16 @@ body {
                 }
                 &.icon_slsm_w {
                     background: url('./img/ic_yewuyuan.png') center center no-repeat;
+                    background-size: 16px auto;
+                    top: 2px;
+                }
+                &.icon_trade_w {
+                    background: url('./img/ic_jiaoyiguanli.png') center center no-repeat;
+                    background-size: 16px auto;
+                    top: 2px;
+                }
+                &.icon_forms_w {
+                    background: url('./img/ic_tongji.png') center center no-repeat;
                     background-size: 16px auto;
                     top: 2px;
                 }
@@ -998,6 +1049,129 @@ body {
         dd.ipload {
             color: @red;
         }
+    }
+}
+
+//加载动画
+#load_small_bg {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 10;
+    top: 0px;
+    left: 0px;
+    &:after {
+        background: black;
+        opacity: 0;
+    }
+    #load_small {
+        width: 120px;
+        height: 120px;
+        text-align: center;
+        line-height: 30px;
+        padding-top: 40px;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -60px;
+        margin-left: -60px;
+        background: black;
+        opacity: 0.7;
+        z-index: 20;
+        border-radius: 6px;
+        font-size: 12px;
+        span {
+            color: white;
+            display: none;
+        }
+        i {
+            width: 35px;
+            height: 35px;
+            -webkit-animation: swiper-preloader-spin 1s steps(12, end) infinite;
+            animation: swiper-preloader-spin 1s steps(12, end) infinite;
+            display: inline-block;
+            background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj48IVtDREFUQVsKQGZvbnQtZmFjZSB7IGZvbnQtZmFtaWx5OiBpZm9udDsgc3JjOiB1cmwoaHR0cDovL2F0LmFsaWNkbi5jb20vdC9mb250XzE0NDIzNzM4OTZfNDc1NDQ1NS5lb3Q/I2llZml4KSBmb3JtYXQoZW1iZWRkZWQtb3BlbnR5cGUpLCB1cmwoaHR0cDovL2F0LmFsaWNkbi5jb20vdC9mb250XzE0NDIzNzM4OTZfNDc1NDQ1NS53b2ZmKSBmb3JtYXQod29mZiksIHVybChodHRwOi8vYXQuYWxpY2RuLmNvbS90L2ZvbnRfMTQ0MjM3Mzg5Nl80NzU0NDU1LnR0ZikgZm9ybWF0KHRydWV0eXBlKSwgdXJsKGh0dHA6Ly9hdC5hbGljZG4uY29tL3QvZm9udF8xNDQyMzczODk2XzQ3NTQ0NTUuc3ZnI2lmb250KSBmb3JtYXQoc3ZnKTsgfQoKXV0+PC9zdHlsZT48L2RlZnM+PGcgY2xhc3M9InRyYW5zZm9ybS1ncm91cCI+PGcgdHJhbnNmb3JtPSJzY2FsZSgwLjE5NTMxMjUsIDAuMTk1MzEyNSkiPjxwYXRoIGQ9Ik0zOTcuMTUyIDE1OC4yNzJtLTE1Ni45OTIgMGE0LjkwNiA0LjkwNiAwIDEgMCAzMTMuOTg0IDAgNC45MDYgNC45MDYgMCAxIDAtMzEzLjk4NCAwWk0xNTEuMTM2IDQ2MS4yOG0tMTMyIDBhNC4xMjUgNC4xMjUgMCAxIDAgMjY0IDAgNC4xMjUgNC4xMjUgMCAxIDAtMjY0IDBaTTI1Ny45ODQgODAwLjI4OG0tMTE5LjAwOCAwYTMuNzE5IDMuNzE5IDAgMSAwIDIzOC4wMTYgMCAzLjcxOSAzLjcxOSAwIDEgMC0yMzguMDE2IDBaTTU2MS40NCA5MjAuMjg4bS0xMDIuNDMyIDBhMy4yMDEgMy4yMDEgMCAxIDAgMjA0Ljg2NCAwIDMuMjAxIDMuMjAxIDAgMSAwLTIwNC44NjQgMFpNODE2LjI1NiA3OTkuNTJtLTg4LjUxMiAwYTIuNzY2IDIuNzY2IDAgMSAwIDE3Ny4wMjQgMCAyLjc2NiAyLjc2NiAwIDEgMC0xNzcuMDI0IDBaTTkyOC45MjggNTc1LjIzMm0tNzUuOTM2IDBhMi4zNzMgMi4zNzMgMCAxIDAgMTUxLjg3MiAwIDIuMzczIDIuMzczIDAgMSAwLTE1MS44NzIgMFpNOTAwLjQ4IDM2NC4xOTJtLTU2LjkyOCAwYTEuNzc5IDEuNzc5IDAgMSAwIDExMy44NTYgMCAxLjc3OSAxLjc3OSAwIDEgMC0xMTMuODU2IDBaTTc3My43NiAyMTIuNzY4bS00Mi40OTYgMGExLjMyOCAxLjMyOCAwIDEgMCA4NC45OTIgMCAxLjMyOCAxLjMyOCAwIDEgMC04NC45OTIgMFoiIGZpbGw9IiNmZmZmZmYiPjwvcGF0aD48L2c+PC9nPjwvc3ZnPg==");
+            background-position: 50%;
+            background-size: 100%;
+            background-repeat: no-repeat;
+        }
+    }
+}
+
+@keyframes swiper-preloader-spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+//文字提示
+div.nomoredata {
+    width: 3.6rem;
+    height: 1rem;
+    line-height: 1rem;
+    text-align: center;
+    color: white;
+    font-size: 0.4rem;
+    display: inline-block;
+    background: black;
+    position: fixed;
+    z-index: 20;
+    bottom: 1rem;
+    border-radius: 3px;
+    left: 50%;
+    margin-left: -2rem;
+    opacity: 0;
+}
+
+div.toast_data {
+    width: auto;
+    padding: 10px;
+    height: auto;
+    line-height: 21px;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    display: inline-block;
+    background: #2F323A;
+    position: fixed;
+    z-index: 20;
+    border-radius: 10px;
+    opacity: 0;
+    top: 50%;
+    margin-top: -30px;
+    left: 15px;
+    right: 15px;
+    z-index: -12;
+}
+
+div.toast_data_short {
+    width: auto;
+    min-width: 300px;
+    padding: 20px;
+    height: auto;
+    line-height: 21px;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    display: inline-block;
+    background: #2F323A;
+    position: fixed;
+    z-index: 20;
+    border-radius: 10px;
+    opacity: .86;
+    top: 50%;
+    left: 50%;
+    margin-top: -30px;
+    margin-left: -150px;
+    .close {
+        position: absolute;
+        top: 5px;
+        right: 15px;
+        font-size: 20px;
+        color: white;
+        opacity: 1;
     }
 }
 
