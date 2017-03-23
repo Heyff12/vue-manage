@@ -41,11 +41,6 @@
                             <el-menu-item index="/form_channel">渠道交易统计</el-menu-item>
                             <el-menu-item index="/form_member">业务员统计</el-menu-item>
                         </el-submenu>
-                        <el-submenu index="7">
-                            <template slot="title"><i class="icon_left icon_settle_w"></i>结算管理</template>
-                            <el-menu-item index="/s_merchant">商户结算单</el-menu-item>
-                            <el-menu-item index="/s_channel">渠道分润单</el-menu-item>
-                        </el-submenu>
                     </el-menu>
                     <!-- <el-menu default-active="1" class="el-menu-vertical-demo" :unique-opened="true" :router="true" @open="handleOpen" @close="handleClose">
                         <el-menu-item index="1" route="/">
@@ -127,7 +122,6 @@
         </div>
         <load :visible="loading"></load>
         <toast :msg="toastmsg" :visible="visible_toast" @on-visible-change="onVisibleChange" @on-msg-change="onMsgChange"></toast>
-        <!-- cookie过期，不需要显示弹框，直接跳转至登录页 ，下面弹框取消不显示-->
         <el-dialog title="" v-model="$store.state.login_no" size="tiny" top="35%">
             <span class="dialog_text">
                 当前未登录，请点击“确定”按钮进入登录页重新登陆!
@@ -260,12 +254,11 @@ export default {
                     _this.loading = false;
                     var data_return = response.body;
                     if (data_return.respcd == '0000') {
-                        //取消 退出成功 的提示，直接跳转
-                        // _this.visible_toast = true;
-                        // _this.toastmsg = '退出成功!';
+                        _this.visible_toast = true;
+                        _this.toastmsg = '退出成功!';
                         setTimeout(() => {
                             window.location.href = location.protocol + '//' + location.host + '/qudao/v1/page/login.html'
-                        }, 0);                        
+                        }, 1000);                        
                     } else {
                         if (data_return.respmsg) {
                             _this.toastmsg = data_return.respmsg;
@@ -891,11 +884,6 @@ body {
                 background-size: 16px auto;
                 top: 2px;
             }
-            &.icon_settle_w {
-                background: url('./img/settle_iw.png') center center no-repeat;
-                background-size: 16px auto;
-                top: 2px;
-            }
         }
         &.is-opened {
             i.icon_left {
@@ -926,11 +914,6 @@ body {
                 }
                 &.icon_forms_w {
                     background: url('./img/ic_tongji.png') center center no-repeat;
-                    background-size: 16px auto;
-                    top: 2px;
-                }
-                &.icon_settle_w {
-                    background: url('./img/settle_i.png') center center no-repeat;
                     background-size: 16px auto;
                     top: 2px;
                 }
@@ -1194,18 +1177,5 @@ div.toast_data_short {
 
 table {
     border-collapse: separate; //保留边框
-}
-
-//隐藏日期插件的  清空 和 此刻 按钮____no_clear和no_now为自定义类
-.no_clear {
-    .el-picker-panel__footer .el-picker-panel__link-btn {
-        display: none;
-    }
-}
-
-.no_now {
-    .el-picker-panel__footer .el-picker-panel__link-btn {
-        display: none;
-    }
 }
 </style>

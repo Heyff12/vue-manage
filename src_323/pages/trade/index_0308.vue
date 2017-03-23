@@ -8,17 +8,17 @@
                 <el-row :gutter="30">
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="商户名称：">
-                            <el-input v-model.trim="searchkey.mchnt_name"></el-input>
+                            <el-input v-model="searchkey.mchnt_name"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="手机号：">
-                            <el-input v-model.trim="searchkey.mchnt_mobile"></el-input>
+                            <el-input v-model="searchkey.mchnt_mobile"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="交易流水号：">
-                            <el-input v-model.trim="searchkey.trade_syssn"></el-input>
+                            <el-input v-model="searchkey.trade_syssn"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
@@ -30,15 +30,21 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
+                    <!-- <el-col :xs="24" :sm="24" :md="12" :lg="12">
+                        <el-form-item label="时间区间：">
+                            <el-date-picker v-model="searchkey.daterange" type="datetimerange" align="right" placeholder="选择日期范围" :editable="false" format="yyyy-MM-dd HH:mm:ss" :clearable="false" popper-class="no_clear">
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col> -->
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="开始时间：">
-                            <el-date-picker v-model="searchkey.trade_start_time" type="datetime" align="right" placeholder="选择开始时间" :picker-options="pickerOptions_s" format="yyyy-MM-dd HH:mm:ss" @change="start_change"  :editable="false"  :clearable="false">
+                            <el-date-picker v-model="searchkey.trade_start_time" type="datetime" align="right" placeholder="选择开始时间" :picker-options="pickerOptions_s" format="yyyy-MM-dd HH:mm:ss" @change="start_change">
                             </el-date-picker>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="结束时间：">
-                            <el-date-picker v-model="searchkey.trade_end_time" type="datetime" align="right" placeholder="选择结束时间" :picker-options="pickerOptions_e" format="yyyy-MM-dd HH:mm:ss" @change="" popper-class="no_now"  :editable="false"  :clearable="false">
+                            <el-date-picker v-model="searchkey.trade_end_time" type="datetime" align="right" placeholder="选择结束时间" :picker-options="pickerOptions_e" format="yyyy-MM-dd HH:mm:ss" @change="" popper-class="no_now">
                             </el-date-picker>
                         </el-form-item>
                     </el-col>
@@ -98,14 +104,27 @@
     </div>
 </template>
 <script>
+import load from '../../components/load'
+import toast from '../../components/toast'
 
 export default {
     name: 'merchant_index',
+    components: {
+        load,
+        toast,
+    },
     data() {
         return {
             loading: false, //load是否显示
             toastmsg: '', //toast提示文字
             visible_toast: false, //toast是否显示
+            // searchkey: {
+            //     'mchnt_name': '',
+            //     'mchnt_mobile': '',
+            //     'trade_syssn': '',
+            //     'trade_status': '',
+            //     'daterange': '',
+            // },
             searchkey: {
                 'mchnt_name': '',
                 'mchnt_mobile': '',
@@ -124,12 +143,12 @@ export default {
             now_year: new Date().getFullYear(), //当前年份
             now_month: new Date().getMonth() + 1, //当前年份
             last_day: new Date(), //月份最后一天
-            start_day: this.get_daystart(), //结束时间可选的第一天
             pickerOptions_s: {
                 disabledDate: (time) => time.getTime() > Date.now()
             },
             pickerOptions_e: {
-                disabledDate: (time) => time.getTime() > this.last_day || time.getTime() < this.start_day
+                minTime: '08:30',
+                disabledDate: (time) => time.getTime() > this.last_day || time.getTime() < new Date(this.searchkey.trade_start_time)
             },
         }
     },
@@ -170,7 +189,7 @@ export default {
             //_this.if_onemonth(_this.searchkey.daterange[0], _this.searchkey.daterange[1]);
             this.get_list();
         },
-        //判断是否属于同一个月份--取消使用
+        //判断是否属于同一个月份
         if_onemonth: function(d_s, d_e) {
             let _this = this;
             let date_s = new Date(d_s);
@@ -191,22 +210,20 @@ export default {
         //获取商户列表
         get_list: function() {
             let _this = this;
-            if (_this.searchkey.trade_start_time.getTime() > _this.searchkey.trade_end_time.getTime()) {
-                _this.loading = false;
-                _this.visible_toast = true;
-                _this.toastmsg = '结束时间小于开始时间!';
-                return false;
-            }
-            let post_data = {
-                'page': _this.page_now,
-                'page_size': _this.page_per,
-                'mchnt_name': _this.searchkey.mchnt_name,
-                'mchnt_mobile': _this.searchkey.mchnt_mobile,
-                'trade_syssn': _this.searchkey.trade_syssn,
-                'trade_status': _this.searchkey.trade_status,
-                'trade_start_time': _this.get_datetime(_this.searchkey.trade_start_time),
-                'trade_end_time': _this.get_datetime(_this.searchkey.trade_end_time),
-            };
+            // let post_data = {
+            //     'page': _this.page_now,
+            //     'page_size': _this.page_per,
+            //     'mchnt_name': _this.searchkey.mchnt_name,
+            //     'mchnt_mobile': _this.searchkey.mchnt_mobile,
+            //     'trade_syssn': _this.searchkey.trade_syssn,
+            //     'trade_status': _this.searchkey.trade_status,
+            //     'trade_start_time': _this.get_datetime(_this.searchkey.daterange[0]),
+            //     'trade_end_time': _this.get_datetime(_this.searchkey.daterange[1]),
+            // };
+            let post_data = _this.searchkey;
+            post_data.page = _this.page_now;
+            post_data.page_size = _this.page_per;
+            //console.log(post_data);
             this.$http.get(this.list_url, {
                     'params': post_data,
                     before: function() {
@@ -261,8 +278,8 @@ export default {
             url += 'mchnt_mobile=' + _this.searchkey.mchnt_mobile + '&';
             url += 'trade_syssn=' + _this.searchkey.trade_syssn + '&';
             url += 'trade_status=' + _this.searchkey.trade_status + '&';
-            url += 'trade_start_time=' + _this.get_datetime(_this.searchkey.trade_start_time) + '&';
-            url += 'trade_end_time=' + _this.get_datetime(_this.searchkey.trade_end_time);
+            url += 'trade_start_time=' + _this.searchkey.trade_start_time + '&';
+            url += 'trade_end_time=' + _this.searchkey.trade_end_time;
             window.open(url);
         },
         //跳转到交易明细页
@@ -281,36 +298,22 @@ export default {
             let date = new Date(time);
             let year = date.getFullYear();
             let month = date.getMonth() + 1;
-            //结束时间--年月日
-            let end_t = this.searchkey.trade_end_time; 
-            let end_t_y = new Date(end_t).getFullYear();
-            let end_t_m = new Date(end_t).getMonth() + 1;
-            let end_t_d = new Date(end_t).getDate();
-            //计算当天天的前一天
-            let day = date.getDate();
-            let now_day = year + '-' + month + '-' + day + ' 00:00:00';
-            _this.start_day=new Date(now_day);
-            //计算当前月的最后一天
-            //如果与当前结束日期的年月相同，且小于当前结束日期的day值，则不再重新计算新的结束日期
-            if (year == end_t_y && month == end_t_m && day <= end_t_d) {
-                return false;
-            }
             let nextmonth, lastday, new_month, new_year;
             if (month < 12) {
                 new_month = month + 1;
                 nextmonth = year + '-' + new_month + '-' + '01 00:00:00';
             } else {
                 new_year = year + 1;
-                nextmonth = new_year + '-' + '01-01 00:00:00';
+                nextmonth = year + '-' + '01-01 00:00:00';
             }
             lastday = new Date(new Date(nextmonth).getTime() - 1);
             if (year !== _this.now_year || month !== _this.now_month) {
                 _this.last_day = lastday;
                 _this.searchkey.trade_end_time = lastday;
-            }else{
-                _this.last_day = new Date();
-                _this.searchkey.trade_end_time = new Date();
             }
+        },
+        start_day() {
+            return new Date(this.searchkey.trade_start_time);
         },
         //获取当天0点的时间
         get_daystart: function() {
@@ -322,7 +325,7 @@ export default {
             let dd = year + '/' + month + '/' + day + ' 00:00:00';
             return new Date(dd);
         },
-        //获取年月日时分秒
+        //获取年月日时分秒---取消区间选择，取消时间转化
         get_datetime: function(d) {
             let _this = this;
             let date = new Date(d);
@@ -510,5 +513,16 @@ export default {
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" rel="stylesheet/less">
+//隐藏日期插件的  清空 和 此刻 按钮
+.no_clear {
+    .el-picker-panel__footer .el-picker-panel__link-btn {
+        display: none;
+    }
+}
 
+.no_now {
+    .el-picker-panel__footer .el-picker-panel__link-btn {
+        display: none;
+    }
+}
 </style>

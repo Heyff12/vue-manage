@@ -808,23 +808,23 @@ dl.home_dl {
         }
     }
     &.dl_four {
-        padding: 10px 0px 11px;
+        padding: 20px 0px;
         &:before {
             display: none;
         }
         dd {
             text-align: left;
-            line-height: 36px;
+            line-height: 30px;
             background: url('@{images}/band1.png') left center no-repeat;
-            background-size: auto 25px;
-            padding-left: 58px;
+            background-size: auto 20px;
+            padding-left: 60px;
             &:nth-child(2) {
                 background: url('@{images}/band2.png') left center no-repeat;
-                background-size: auto 25px;
+                background-size: auto 20px;
             }
             &:nth-child(3) {
                 background: url('@{images}/band3.png') left center no-repeat;
-                background-size: auto 25px;
+                background-size: auto 20px;
             }
             span {
                 padding-left: 10px;

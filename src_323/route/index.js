@@ -14,8 +14,6 @@ import form_merchantin from '../pages/forms/form_merchantin' //商户入网统�
 import form_channelin from '../pages/forms/form_channelin' //渠道商户入网统计
 import form_channel from '../pages/forms/form_channel' //渠道交易统计
 import form_member from '../pages/forms/form_member' //业务员统计
-import s_merchant from '../pages/settle/merchant' //商户结算单
-import s_channel from '../pages/settle/channel' //渠道分润单
 
 
 
@@ -57,7 +55,4 @@ export default [
     { path: '/form_channelin', name: 'form_channelin', component: form_channelin },
     { path: '/form_channel', name: 'form_channel', component: form_channel },
     { path: '/form_member', name: 'form_member', component: form_member },
-    //结算管理
-    { path: '/s_merchant', name: 's_merchant', component: s_merchant },
-    { path: '/s_channel', name: 's_channel', component: s_channel },
 ]

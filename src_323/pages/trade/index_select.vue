@@ -8,17 +8,17 @@
                 <el-row :gutter="30">
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="商户名称：">
-                            <el-input v-model.trim="searchkey.mchnt_name"></el-input>
+                            <el-input v-model="searchkey.mchnt_name"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="手机号：">
-                            <el-input v-model.trim="searchkey.mchnt_mobile"></el-input>
+                            <el-input v-model="searchkey.mchnt_mobile"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="交易流水号：">
-                            <el-input v-model.trim="searchkey.trade_syssn"></el-input>
+                            <el-input v-model="searchkey.trade_syssn"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
@@ -30,15 +30,21 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="12">
+                        <el-form-item label="时间区间：">
+                            <el-date-picker v-model="searchkey.daterange" type="datetimerange" align="right" placeholder="选择日期范围">
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="开始时间：">
-                            <el-date-picker v-model="searchkey.trade_start_time" type="datetime" align="right" placeholder="选择开始时间" :picker-options="pickerOptions_s" format="yyyy-MM-dd HH:mm:ss" @change="start_change"  :editable="false"  :clearable="false">
+                            <el-date-picker v-model="searchkey.trade_start_time" type="datetime" align="right" placeholder="选择日期范围" :picker-options="pickerOptions_s" format="yyyy-MM-dd HH:mm:ss" @change="start_change">
                             </el-date-picker>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="结束时间：">
-                            <el-date-picker v-model="searchkey.trade_end_time" type="datetime" align="right" placeholder="选择结束时间" :picker-options="pickerOptions_e" format="yyyy-MM-dd HH:mm:ss" @change="" popper-class="no_now"  :editable="false"  :clearable="false">
+                            <el-date-picker v-model="searchkey.trade_end_time" type="datetime" align="right" placeholder="选择日期范围" :picker-options="pickerOptions_e" format="yyyy-MM-dd HH:mm:ss" @change="">
                             </el-date-picker>
                         </el-form-item>
                     </el-col>
@@ -60,36 +66,25 @@
                     </el-table-column>
                     <el-table-column prop="trade_syssn" label="交易流水号" resizable min-width="180px">
                     </el-table-column>
-                    <el-table-column label="交易金额/元" resizable min-width="120px" align="center">
-                        <template scope="scope">
-                            {{(scope.row.trade_amt/100).toFixed(2)}}
-                        </template>
+                    <el-table-column prop="trade_amt" label="交易金额" resizable min-width="120px">
                     </el-table-column>
-                    <!-- <el-table-column label="手续费/元" resizable min-width="100px" align="center">
-                        <template scope="scope">
-                            {{(scope.row.trade_fee/100).toFixed(2)}}
-                        </template>
-                    </el-table-column> -->
+                    <el-table-column prop="trade_fee" label="手续费" resizable min-width="100px">
+                    </el-table-column>
                     <el-table-column prop="trade_dtm" label="交易时间" resizable min-width="170px">
                     </el-table-column>
-                    <el-table-column prop="trade_type" label="交易类型" resizable min-width="100px" align="center">
+                    <el-table-column prop="trade_type" label="交易类型" resizable min-width="100px">
                     </el-table-column>
-                    <el-table-column prop="trade_status" label="交易状态" resizablemin-width="100px" align="center">
+                    <el-table-column prop="trade_status" label="交易状态" resizablemin-width="100px">
                     </el-table-column>
-                    <el-table-column label="操作" resizable min-width="100px" align="center">
-                        <!-- <template scope="scope">
-                            <router-link :to="{ name: 'trade_detail',params: { mchnt_uid: scope.row.mchnt_uid,mchnt_name: scope.row.mchnt_name,trade_syssn: scope.row.trade_syssn,trade_amt: scope.row.trade_amt,trade_fee: scope.row.trade_fee,trade_dtm: scope.row.trade_dtm,trade_type: scope.row.trade_type,trade_status: scope.row.trade_status,trade_msg: scope.row.trade_msg }}">
-                                <el-button type="text" :detail="scope.row">明细</el-button>
-                            </router-link>
-                        </template> -->
+                    <el-table-column label="操作" resizable min-width="100px">
                         <template scope="scope">
-                            <el-button type="text" @click="to_detail(scope.row)">明细</el-button>
+                            <el-button type="info" @click="scan_detail">明细</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </template>
             <div class="block t_r mar_t20">
-                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="page_now" :page-sizes="[20,50,100,200,250]" :page-size="page_per" layout="total, sizes, prev, pager, next" :total="pages_all">
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="page_now" :page-sizes="[1,2,4,20,50,100,200,250]" :page-size="page_per" layout="total, sizes, prev, pager, next" :total="pages_all">
                 </el-pagination>
             </div>
         </div>
@@ -98,9 +93,15 @@
     </div>
 </template>
 <script>
+import load from '../../components/load'
+import toast from '../../components/toast'
 
 export default {
     name: 'merchant_index',
+    components: {
+        load,
+        toast,
+    },
     data() {
         return {
             loading: false, //load是否显示
@@ -111,42 +112,69 @@ export default {
                 'mchnt_mobile': '',
                 'trade_syssn': '',
                 'trade_status': '',
+                'daterange': '',
                 'trade_start_time': '',
                 'trade_end_time': '',
             },
-            list_url: location.protocol + '//' + location.host + '/qudao/v1/api/trade/list', //获取交易列表  
-            down_url: location.protocol + '//' + location.host + '/qudao/v1/api/trade/list/download', //下载            
+            trades: [],
+            list_url: location.protocol + '//' + location.host + '/qudao/v1/api/trade/list', //获取交易列表            
             pages_all: 0, //总信息数
             pages: 1, //总页数
             page_per: 20, //每页信息数
             page_now: 1, //当前页数
+            trade_mid: [], //搜索后的总信息
             trade_now: [], //当前展示信息
-            now_year: new Date().getFullYear(), //当前年份
-            now_month: new Date().getMonth() + 1, //当前年份
-            last_day: new Date(), //月份最后一天
-            start_day: this.get_daystart(), //结束时间可选的第一天
             pickerOptions_s: {
-                disabledDate: (time) => time.getTime() > Date.now()
+                disabledDate: (time) =>  time.getTime() > Date.now() - 8.64e7
             },
             pickerOptions_e: {
-                disabledDate: (time) => time.getTime() > this.last_day || time.getTime() < this.start_day
+                disabledDate: (time) =>  time.getTime() > this.last_day 
             },
         }
     },
     created: function() {
-        //设置默认时间--取消时间区间选择
-        //this.searchkey.daterange = [this.get_daystart(), new Date()];
+        //设置默认时间
+        this.searchkey.daterange = [this.get_daystart(), new Date()];
         this.searchkey.trade_start_time = this.get_daystart();
         this.searchkey.trade_end_time = new Date();
         setTimeout(() => {
-            //this.if_onemonth(this.searchkey.daterange[0], this.searchkey.daterange[1]); //获取商户列表
             this.get_list(); //获取商户列表
         }, 0);
     },
     watch: {
-
+        trade_mid: function(val, oldVal) {
+            var _this = this;
+            //_this.pages_all = _this.trade_mid.length;
+            _this.page_now = 1;
+            _this.trade_now = _this.trade_mid.slice(0, _this.page_now * _this.page_per);
+        },
     },
     methods: {
+        //计算开始时间 月份的最后一天
+        start_change(time) {
+            let _this = this;
+            let date = new Date(time);
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;
+            let nextmonth, sec;
+            if (month < 12) {
+                month++;
+                nextmonth = year + '-' + month + '-' + '01 00:00:00';
+            } else {
+                year++;
+                nextmonth = year + '-' + '01-01 00:00:00';
+            }
+            sec = new Date(new Date(nextmonth).getTime() - 1);
+            console.log(sec);
+            _this.last_day = sec;
+            _this.searchkey.trade_end_time = sec;
+        },
+        last_day(){
+            return this.last_day;
+        },
+        start_day(){
+            return new Date(this.searchkey.trade_start_time);
+        },
         //监听toast是否可见的值得变化
         onVisibleChange(val) {
             this.visible_toast = val; //④外层调用组件方注册变更方法，将组件内的数据变更，同步到组件外的数据状态中
@@ -155,48 +183,22 @@ export default {
         onMsgChange(val) {
             this.toastmsg = val; //④外层调用组件方注册变更方法，将组件内的数据变更，同步到组件外的数据状态中
         },
-        //调整每页显示信息数量
         handleSizeChange(val) {
             let _this = this;
+            //console.log(`每页 ${val} 条`);
             _this.page_per = val;
             _this.page_now = 1;
-            //_this.if_onemonth(_this.searchkey.daterange[0], _this.searchkey.daterange[1]);
-            this.get_list();
+            _this.trade_now = _this.trade_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
         },
-        //更换当前页
         handleCurrentChange(val) {
+            //console.log(`当前页: ${val}`);
             let _this = this;
             _this.page_now = val;
-            //_this.if_onemonth(_this.searchkey.daterange[0], _this.searchkey.daterange[1]);
-            this.get_list();
-        },
-        //判断是否属于同一个月份--取消使用
-        if_onemonth: function(d_s, d_e) {
-            let _this = this;
-            let date_s = new Date(d_s);
-            let date_s_year = date_s.getFullYear();
-            let date_s_mon = date_s.getMonth() + 1;
-            let date_e = new Date(d_e);
-            let date_e_year = date_e.getFullYear();
-            let date_e_mon = date_e.getMonth() + 1;
-            if (date_s_year != date_e_year || date_s_mon != date_e_mon) {
-                _this.loading = false;
-                _this.visible_toast = true;
-                _this.toastmsg = '时间区间不能跨月!';
-                return false;
-            } else {
-                _this.get_list();
-            }
+            _this.trade_now = _this.trade_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
         },
         //获取商户列表
         get_list: function() {
             let _this = this;
-            if (_this.searchkey.trade_start_time.getTime() > _this.searchkey.trade_end_time.getTime()) {
-                _this.loading = false;
-                _this.visible_toast = true;
-                _this.toastmsg = '结束时间小于开始时间!';
-                return false;
-            }
             let post_data = {
                 'page': _this.page_now,
                 'page_size': _this.page_per,
@@ -204,123 +206,67 @@ export default {
                 'mchnt_mobile': _this.searchkey.mchnt_mobile,
                 'trade_syssn': _this.searchkey.trade_syssn,
                 'trade_status': _this.searchkey.trade_status,
-                'trade_start_time': _this.get_datetime(_this.searchkey.trade_start_time),
-                'trade_end_time': _this.get_datetime(_this.searchkey.trade_end_time),
+                'trade_start_time': _this.get_datetime(_this.searchkey.daterange[0]),
+                'trade_end_time': _this.get_datetime(_this.searchkey.daterange[1]),
             };
-            this.$http.get(this.list_url, {
-                    'params': post_data,
-                    before: function() {
-                        _this.loading = true;
-                    }
-                })
-                .then(function(response) {
-                    _this.loading = false;
-                    let data_return = response.body;
-                    if (data_return.respcd == '0000') {
-                        _this.pages_all = data_return.data.trade_cnt;
-                        _this.trade_now = data_return.data.trade;
-                    } else {
-                        if (data_return.respmsg) {
-                            _this.toastmsg = data_return.respmsg;
-                        } else {
-                            _this.toastmsg = data_return.resperr;
-                        }
-                        _this.visible_toast = true;
-                    }
-                }, function(response) {
-                    _this.loading = false;
-                    _this.visible_toast = true;
-                    _this.toastmsg = '网络超时!';
-                })
-                .catch(function(response) {
-                    _this.loading = false;
-                });
+            // _this.searchkey.trade_start_time = _this.get_datetime(_this.searchkey.daterange[0]);
+            // _this.searchkey.trade_end_time = _this.get_datetime(_this.searchkey.daterange[1]);
+            // let post_data = _this.searchkey;
+            // post_data.page = _this.page_now;
+            // post_data.page_size = _this.page_per;
+            console.log(post_data);
+            // this.$http.get(this.list_url, {
+            //         'params': post_data,
+            //         before: function() {
+            //             _this.loading = true;
+            //         }
+            //     })
+            //     .then(function(response) {
+            //         _this.loading = false;
+            //         let data_return = response.body;
+            //         if (data_return.respcd == '0000') {
+            //             _this.pages_all = data_return.data.trade_cnt;
+            //             _this.trades = data_return.data.trade;
+            //             _this.trade_mid = _this.trades;
+            //             _this.trade_now = _this.trade_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            //         } else {
+            //             if (data_return.respmsg) {
+            //                 _this.toastmsg = data_return.respmsg;
+            //             } else {
+            //                 _this.toastmsg = data_return.resperr;
+            //             }
+            //             _this.visible_toast = true;
+            //         }
+            //     }, function(response) {
+            //         _this.loading = false;
+            //         _this.visible_toast = true;
+            //         _this.toastmsg = '网络超时!';
+            //     })
+            //     .catch(function(response) {
+            //         _this.loading = false;
+            //     }); 
             //列表测试数据--仅供测试
-            //_this.getdata_test();
+            _this.getdata_test();
         },
         //提交查询--后台处理
         search_sub_ajax: function() {
             let _this = this;
-            //_this.if_onemonth(_this.searchkey.daterange[0], _this.searchkey.daterange[1]);
-            this.get_list();
+            let if_month = _this.if_onemonth(_this.searchkey.daterange[0], _this.searchkey.daterange[1]);
+            if (!if_month) {
+                _this.loading = false;
+                _this.visible_toast = true;
+                _this.toastmsg = '时间区间不能跨月!';
+                return false;
+            }
+            _this.get_list();
         },
         //下载
         download_sub: function() {
-            let _this = this;
-            // let post_data = {
-            //     'mchnt_name': _this.searchkey.mchnt_name,
-            //     'mchnt_mobile': _this.searchkey.mchnt_mobile,
-            //     'trade_syssn': _this.searchkey.trade_syssn,
-            //     'trade_status': _this.searchkey.trade_status,
-            //     'trade_start_time': _this.get_datetime(_this.searchkey.daterange[0]),
-            //     'trade_end_time': _this.get_datetime(_this.searchkey.daterange[1]),
-            // };
-            let post_data = _this.searchkey;
-            let url = this.down_url + '?';
-            url += 'mchnt_name=' + _this.searchkey.mchnt_name + '&';
-            url += 'mchnt_mobile=' + _this.searchkey.mchnt_mobile + '&';
-            url += 'trade_syssn=' + _this.searchkey.trade_syssn + '&';
-            url += 'trade_status=' + _this.searchkey.trade_status + '&';
-            url += 'trade_start_time=' + _this.get_datetime(_this.searchkey.trade_start_time) + '&';
-            url += 'trade_end_time=' + _this.get_datetime(_this.searchkey.trade_end_time);
-            window.open(url);
+
         },
-        //跳转到交易明细页
-        to_detail: function(obj) {
-            this.$store.commit('t_detail', obj);
-            this.$router.push({
-                name: 'trade_detail',
-                params: {
-                    trade_syssn: obj.trade_syssn
-                }
-            })
-        },
-        //计算开始时间 月份的最后一天
-        start_change(time) {
-            let _this = this;
-            let date = new Date(time);
-            let year = date.getFullYear();
-            let month = date.getMonth() + 1;
-            //结束时间--年月日
-            let end_t = this.searchkey.trade_end_time; 
-            let end_t_y = new Date(end_t).getFullYear();
-            let end_t_m = new Date(end_t).getMonth() + 1;
-            let end_t_d = new Date(end_t).getDate();
-            //计算当天天的前一天
-            let day = date.getDate();
-            let now_day = year + '-' + month + '-' + day + ' 00:00:00';
-            _this.start_day=new Date(now_day);
-            //计算当前月的最后一天
-            //如果与当前结束日期的年月相同，且小于当前结束日期的day值，则不再重新计算新的结束日期
-            if (year == end_t_y && month == end_t_m && day <= end_t_d) {
-                return false;
-            }
-            let nextmonth, lastday, new_month, new_year;
-            if (month < 12) {
-                new_month = month + 1;
-                nextmonth = year + '-' + new_month + '-' + '01 00:00:00';
-            } else {
-                new_year = year + 1;
-                nextmonth = new_year + '-' + '01-01 00:00:00';
-            }
-            lastday = new Date(new Date(nextmonth).getTime() - 1);
-            if (year !== _this.now_year || month !== _this.now_month) {
-                _this.last_day = lastday;
-                _this.searchkey.trade_end_time = lastday;
-            }else{
-                _this.last_day = new Date();
-                _this.searchkey.trade_end_time = new Date();
-            }
-        },
-        //获取当天0点的时间
-        get_daystart: function() {
-            let _this = this;
-            let d = new Date();
-            let year = d.getFullYear();
-            let month = _this.date_long(d.getMonth() + 1);
-            let day = _this.date_long(d.getDate());
-            let dd = year + '/' + month + '/' + day + ' 00:00:00';
-            return new Date(dd);
+        //查看明细
+        scan_detail: function() {
+
         },
         //获取年月日时分秒
         get_datetime: function(d) {
@@ -334,7 +280,21 @@ export default {
             let sec = _this.date_long(date.getSeconds());
             return year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
         },
-        //处理1位01---取消区间选择，取消时间转化
+        //判断是否属于同一个月份
+        if_onemonth: function(d_s, d_e) {
+            let date_s = new Date(d_s);
+            let date_s_year = date_s.getFullYear();
+            let date_s_mon = date_s.getMonth() + 1;
+            let date_e = new Date(d_e);
+            let date_e_year = date_e.getFullYear();
+            let date_e_mon = date_e.getMonth() + 1;
+            if (date_s_year != date_e_year || date_s_mon != date_e_mon) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        //处理1位01
         date_long: function(n) {
             if (n < 10) {
                 return '0' + n;
@@ -342,13 +302,17 @@ export default {
                 return n;
             }
         },
-        //时间变化--可以格式化时间格式--暂时没有使用
-        timechange(val) {
-            console.log(val)
+        //获取当天0点的时间
+        get_daystart: function() {
             let _this = this;
-            console.log(this.searchkey.daterange);
+            let d = new Date();
+            let year = d.getFullYear();
+            let month = _this.date_long(d.getMonth() + 1);
+            let day = _this.date_long(d.getDate());
+            let dd = year + '/' + month + '/' + day + ' 00:00:00';
+            return new Date(dd);
         },
-        //提交查询--本次不用前端进行搜索--暂时没用使用
+        //提交查询--本次不用前端进行搜索
         search_sub: function() {
             let _this = this;
             _this.trade_mid = [];
@@ -500,15 +464,18 @@ export default {
                 "trade_msg": "交易失败", // 交易失败原因
                 "mchnt_mobile": "15893456456", // 手机号
             }];
-            _this.trade_now = _this.trades;
+            _this.trade_mid = _this.trades;
             //_this.pages_all = _this.trade_mid.length;
             _this.pages_all = 100;
-            //_this.trade_now = _this.trade_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            _this.trade_now = _this.trade_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
         },
     },
 }
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" rel="stylesheet/less">
-
+.el-date-editor--daterange.el-input {
+    /*width: 204px;*/
+    width: 70%;
+}
 </style>

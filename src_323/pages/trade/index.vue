@@ -281,27 +281,18 @@ export default {
             let date = new Date(time);
             let year = date.getFullYear();
             let month = date.getMonth() + 1;
-            //结束时间--年月日
-            let end_t = this.searchkey.trade_end_time; 
-            let end_t_y = new Date(end_t).getFullYear();
-            let end_t_m = new Date(end_t).getMonth() + 1;
-            let end_t_d = new Date(end_t).getDate();
             //计算当天天的前一天
             let day = date.getDate();
             let now_day = year + '-' + month + '-' + day + ' 00:00:00';
             _this.start_day=new Date(now_day);
             //计算当前月的最后一天
-            //如果与当前结束日期的年月相同，且小于当前结束日期的day值，则不再重新计算新的结束日期
-            if (year == end_t_y && month == end_t_m && day <= end_t_d) {
-                return false;
-            }
             let nextmonth, lastday, new_month, new_year;
             if (month < 12) {
                 new_month = month + 1;
                 nextmonth = year + '-' + new_month + '-' + '01 00:00:00';
             } else {
                 new_year = year + 1;
-                nextmonth = new_year + '-' + '01-01 00:00:00';
+                nextmonth = year + '-' + '01-01 00:00:00';
             }
             lastday = new Date(new Date(nextmonth).getTime() - 1);
             if (year !== _this.now_year || month !== _this.now_month) {
@@ -510,5 +501,16 @@ export default {
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" rel="stylesheet/less">
+//隐藏日期插件的  清空 和 此刻 按钮
+.no_clear {
+    .el-picker-panel__footer .el-picker-panel__link-btn {
+        display: none;
+    }
+}
 
+.no_now {
+    .el-picker-panel__footer .el-picker-panel__link-btn {
+        display: none;
+    }
+}
 </style>
