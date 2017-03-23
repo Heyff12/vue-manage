@@ -112,8 +112,14 @@
     </div>
 </template>
 <script>
+import load from '../../components/load'
+import toast from '../../components/toast'
 export default {
     name: 'channel_account',
+    components: {
+        load,
+        toast
+    },
     data() {
         var checkamt = (rule, value, callback) => {
             if (!value) {

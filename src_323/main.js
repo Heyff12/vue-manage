@@ -20,7 +20,8 @@ Vue.use(ElementUI)
 Vue.http.interceptors.push((request, next) => {
     next((response) => {
         if (response.body.respcd==1001) {
-            store.commit('t_login_no', true);
+            //store.commit('t_login_no', true);
+            window.location.href = location.protocol + '//' + location.host + '/qudao/v1/page/login.html'
             return false
         }else{
         	return response

@@ -45,6 +45,21 @@
                             </el-form-item>
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="8">
+                            <el-form-item label="国家" prop="country">
+                                <el-input v-model="base.country" :disabled="true"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="12" :lg="8">
+                            <el-form-item label="时区" prop="timezone">
+                                <el-input v-model="base.timezone" :disabled="true"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="12" :lg="8">
+                            <el-form-item label="币种" prop="currency">
+                                <el-input v-model="base.currency" :disabled="true"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="12" :lg="8">
                             <el-form-item label="注册邮箱" prop="email">
                                 <el-input v-model="base.email" :disabled="true"></el-input>
                             </el-form-item>
@@ -218,14 +233,8 @@
     </div>
 </template>
 <script>
-import load from '../../components/load'
-import toast from '../../components/toast'
 export default {
     name: 'channel_base',
-    components: {
-        load,
-        toast
-    },
     data() {
         return {
             big_pic_show: false, //大图弹框是否显示
@@ -263,6 +272,9 @@ export default {
                 "icon_url": "/qudao/v1/static/login/img/ic_img.png", // 企业ICON
                 "business_license_url": "/qudao/v1/static/login/img/ic_img.png", // 营业执照
                 "bank_account_url": "/qudao/v1/static/login/img/ic_img.png", // 开户许可证
+                "country": "", // 国家
+                "timezone": "", // 时区
+                "currency": "", // 币种
             },
             qd_types_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/qd_types', //渠道类型
             qd_areacities_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/areacities', //省份城市列表
@@ -402,6 +414,21 @@ export default {
                     required: false,
                     pattern: /(?=\/qudao\/v1\/static\/login\/img\/ic_img.png)|(^(http))/,
                     message: '图片格式为“png/jpg/jepg”,不能大于10M!',
+                    trigger: 'change'
+                }],
+                country: [{
+                    required: true,
+                    message: '请选择国家',
+                    trigger: 'change'
+                }],
+                timezone: [{
+                    required: true,
+                    message: '请选择时区',
+                    trigger: 'change'
+                }],
+                currency: [{
+                    required: true,
+                    message: '请选择币种',
                     trigger: 'change'
                 }],
             },
@@ -926,14 +953,4 @@ export default {
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" rel="stylesheet/less">
-.big_pic {
-    width: 100%;
-    padding: 25px 165px;
-    box-sizing: border-box;
-    text-align: center;
-    img {
-        width: 100%;
-        height: auto;
-    }
-}
 </style>

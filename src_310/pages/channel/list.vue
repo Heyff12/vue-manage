@@ -8,12 +8,12 @@
                 <el-row :gutter="30">
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="渠道编号：">
-                            <el-input v-model="searchkey.id"></el-input>
+                            <el-input v-model.trim="searchkey.id"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label="渠道名称：">
-                            <el-input v-model="searchkey.name"></el-input>
+                            <el-input v-model.trim="searchkey.name"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
@@ -26,7 +26,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
-                        <el-form-item>
+                        <el-form-item label-width="0" class="t_c">
+                            <!-- <el-button type="default" @click="fresh_sub">刷新</el-button> -->
                             <el-button type="primary" @click="search_sub">查询</el-button>
                         </el-form-item>
                     </el-col>
@@ -98,14 +99,8 @@
     </div>
 </template>
 <script>
-import load from '../../components/load'
-import toast from '../../components/toast'
 export default {
     name: 'channel_list',
-    components: {
-        load,
-        toast
-    },
     data() {
         return {
             opratedialog: false, //开启、停用弹框是否开启
@@ -134,12 +129,12 @@ export default {
         this.get_list(); //获取渠道信息列表 
     },
     watch: {
-        channels_mid: function(val, oldVal) {
-            var _this = this;
-            _this.pages_all = _this.channels_mid.length;
-            _this.page_now = 1;
-            _this.channels_now = _this.channels_mid.slice(0, _this.page_now * _this.page_per);
-        },
+        // channels_mid: function(val, oldVal) {
+        //     var _this = this;
+        //     _this.pages_all = _this.channels_mid.length;
+        //     _this.page_now = 1;
+        //     _this.channels_now = _this.channels_mid.slice(0, _this.page_now * _this.page_per);
+        // },
     },
     methods: {
         //监听toast是否可见的值得变化
@@ -154,63 +149,75 @@ export default {
         get_list: function() {
             let _this = this;
             let post_data = {
-                'pos': 0,
-                'count': 1000000,
-                'query': {
-                    'userid': '',
-                    'name': '',
-                    'status': ''
-                }
+                'page': _this.page_now,
+                'page_size': _this.page_per,
+                'userid': _this.searchkey.id,
+                'name': _this.searchkey.name,
+                'status': _this.searchkey.status,
             };
-            // this.$http.get(this.list_url, {
-            //         'params': post_data,
-            //         before: function() {
-            //             _this.loading = true;
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         _this.loading = false;
-            //         let data_return = response.body;
-            //         if (data_return.respcd == '0000') {
-            //             _this.channels = data_return.data;
-            //             _this.channels_mid = _this.channels;
-            //             _this.pages_all = _this.channels_mid.length;
-            //             _this.channels_now = _this.channels_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
-            //         } else {
-            //             if (data_return.respmsg) {
-            //                 _this.toastmsg = data_return.respmsg;
-            //             } else {
-            //                 _this.toastmsg = data_return.resperr;
-            //             }
-            //             _this.visible_toast = true;
-            //         }
-            //     }, function(response) {
-            //         _this.loading = false;
-            //         _this.visible_toast = true;
-            //         _this.toastmsg = '网络超时!';
-            //     })
-            //     .catch(function(response) {
-            //         _this.loading = false;
-            //     });  
+            this.$http.get(this.list_url, {
+                    'params': post_data,
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    let data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        // _this.channels = data_return.data;
+                        // _this.channels_mid = _this.channels;
+                        // _this.pages_all = _this.channels_mid.length;
+                        // _this.channels_now = _this.channels_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+                        _this.pages_all = data_return.data.qd_cnt;
+                        _this.channels_now = data_return.data.qd_infos;
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
             //获取测试数据--本地
-            _this.getdava_test();
+            //_this.getdava_test();          
         },
         //提交查询
         search_sub: function() {
+            // var _this = this;
+            // _this.channels_mid = [];
+            // var key_id = this.searchkey.id;
+            // var key_name = this.searchkey.name;
+            // var key_status = this.searchkey.status;
+            // for (let i = 0; i < _this.channels.length; i++) {
+            //     let userid = _this.channels[i].base.userid.toString();
+            //     let status = _this.channels[i].base.status.toString();
+            //     let name = _this.channels[i].base.name;
+            //     if (userid.indexOf(key_id) != '-1' && name.indexOf(key_name) != '-1' && status.indexOf(key_status) != '-1') {
+            //         _this.channels_mid.push(_this.channels[i]);
+            //     }
+            // }
+            // return _this.channels_mid;
+            this.get_list();
+        },
+        //清空并刷新--数据通过ajax请求，取消刷新
+        fresh_sub: function() {
             var _this = this;
-            _this.channels_mid = [];
-            var key_id = this.searchkey.id;
-            var key_name = this.searchkey.name;
-            var key_status = this.searchkey.status;
-            for (let i = 0; i < _this.channels.length; i++) {
-                let userid = _this.channels[i].base.userid.toString();
-                let status = _this.channels[i].base.status.toString();
-                let name = _this.channels[i].base.name;
-                if (userid.indexOf(key_id) != '-1' && name.indexOf(key_name) != '-1' && status.indexOf(key_status) != '-1') {
-                    _this.channels_mid.push(_this.channels[i]);
-                }
-            }
-            return _this.channels_mid;
+            _this.searchkey = {
+                id: '',
+                name: '',
+                status: '',
+            }; //清空搜索内容
+            _this.page_now = 1; //页数回到第一页
+            _this.get_list(); //获取最新列表
         },
         //筛选--停用
         num_ser: function(channels) {
@@ -225,17 +232,18 @@ export default {
         },
         handleSizeChange(val) {
             let _this = this;
-            console.log(`每页 ${val} 条`);
+            //console.log(`每页 ${val} 条`);
             _this.page_per = val;
             _this.page_now = 1;
-            _this.channels_now = _this.channels_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            // _this.channels_now = _this.channels_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            this.get_list();
         },
         handleCurrentChange(val) {
-            //this.currentPage = val;
-            console.log(`当前页: ${val}`);
+            //console.log(`当前页: ${val}`);
             let _this = this;
             _this.page_now = val;
-            _this.channels_now = _this.channels_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            // _this.channels_now = _this.channels_mid.slice((_this.page_now - 1) * _this.page_per, _this.page_now * _this.page_per);
+            this.get_list();
         },
         //开启渠道状态
         open_chan: function(val) {
@@ -265,64 +273,49 @@ export default {
             let post_data = {
                 'status': status,
             };
-            // this.$http.post(this.chan_url + userid + '/status', post_data, {
-            //         before: function() {
-            //             _this.loading = true;
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         _this.loading = false;
-            //         let data_return = response.body;
-            //         if (data_return.respcd == '0000') {
-            //             for (let i = 0; i < _this.channels.length; i++) {
-            //                 if (_this.channels[i].base.userid == userid) {
-            //                     if (_this.oprate_if) {
-            //                         this.channels[i].base.status = 0;
-            //                     } else {
-            //                         this.channels[i].base.status = 1;
-            //                     }
-            //                     //如果帅选的状态不是全部，更新筛选数据    
-            //                     if (_this.searchkey.status == '0' || _this.searchkey.status == '1') {
-            //                         _this.search_sub();
-            //                     }
-            //                     break;
-            //                 }
-            //             }
-            //         } else {
-            //             if (data_return.respmsg) {
-            //                 _this.toastmsg = data_return.respmsg;
-            //             } else {
-            //                 _this.toastmsg = data_return.resperr;
-            //             }
-            //             _this.visible_toast = true;
-            //         }
-            //     }, function(response) {
-            //         _this.loading = false;
-            //         _this.visible_toast = true;
-            //         _this.toastmsg = '网络超时!';
-            //     })
-            //     .catch(function(response) {
-            //         _this.loading = false;
-            //     });
-            //仅供测试
-            for (let i = 0; i < _this.channels.length; i++) {
-                if (_this.channels[i].base.userid == userid) {
-                    if (_this.oprate_if) {
-                        this.channels[i].base.status = 0;
+            this.$http.post(this.chan_url + userid + '/status', post_data, {
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    let data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        // for (let i = 0; i < _this.channels_now.length; i++) {
+                        //     if (_this.channels_now[i].base.userid == userid) {
+                        //         if (_this.oprate_if) {
+                        //             this.channels_now[i].base.status = 0;
+                        //         } else {
+                        //             this.channels_now[i].base.status = 1;
+                        //         }
+                        //         //如果帅选的状态不是全部，更新筛选数据    
+                        //         if (_this.searchkey.status == '0' || _this.searchkey.status == '1') {
+                        //             _this.search_sub();
+                        //         }
+                        //         break;
+                        //     }
+                        // }
+                        _this.get_list();
                     } else {
-                        this.channels[i].base.status = 1;
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
                     }
-                    //如果帅选的状态不是全部，更新筛选数据    
-                    if (_this.searchkey.status == '0' || _this.searchkey.status == '1') {
-                        _this.search_sub();
-                    }
-                    break;
-                }
-            }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
         },
         //测试列表数据--仅供测试
         getdava_test() {
-            let _this = this;
             _this.channels = [{
                 "base": {
                     "userid": 123, // 渠道编号

@@ -31,14 +31,8 @@
     </div>
 </template>
 <script>
-import load from '../../components/load'
-import toast from '../../components/toast'
 export default {
     name: 'channel_pro',
-    components: {
-        load,
-        toast
-    },
     data() {
         return {
             loading: false, //load是否显示

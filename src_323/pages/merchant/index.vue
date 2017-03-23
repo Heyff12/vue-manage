@@ -40,6 +40,7 @@
                     <el-col :xs="24" :sm="24" :md="12" :lg="6">
                         <el-form-item label-width="0" class="t_c">
                             <!-- <el-button type="default" @click="fresh_sub">刷新</el-button> -->
+                            <el-button type="default" @click="download_sub">商户信息下载</el-button>
                             <el-button type="primary" @click="search_sub">查询</el-button>
                         </el-form-item>
                     </el-col>
@@ -67,7 +68,15 @@
                     </el-table-column> -->
                     <el-table-column prop="jointime" label="注册时间" resizable min-width="170px">
                     </el-table-column>
-                    <el-table-column label="操作" resizable min-width="100px">
+                    <el-table-column prop="audit_status" label="审核状态" resizable min-width="100px">
+                        <!-- <template scope="scope">
+                            <span v-if="scope.row.audit_status==2">失败</span>
+                            <span v-if="scope.row.audit_status==1">成功</span>
+                            <span v-if="scope.row.audit_status==0">拒绝</span>
+                            <span v-else>审核中</span>
+                        </template> -->
+                    </el-table-column>
+                    <el-table-column prop="audit_memo" label="失败原因" resizable min-width="100px">
                     </el-table-column>
                 </el-table>
             </template>
@@ -99,7 +108,8 @@ export default {
                 daterange: '',
             },
             merchants: [],
-            list_url: location.protocol + '//' + location.host + '/qudao/v1/api/mchnt/list', //获取商户列表            
+            list_url: location.protocol + '//' + location.host + '/qudao/v1/api/mchnt/list', //获取商户列表  
+            down_url: location.protocol + '//' + location.host + '/qudao/v1/api/mchnt/list/download', //下载             
             pages_all: 0, //总信息数
             page_per: 20, //每页信息数
             page_now: 1, //当前页数
@@ -140,12 +150,12 @@ export default {
         this.get_list(); //获取商户列表 
     },
     watch: {
-        merchants_mid: function(val, oldVal) {
-            var _this = this;
-            _this.pages_all = _this.merchants_mid.length;
-            _this.page_now = 1;
-            _this.merchants_now = _this.merchants_mid.slice(0, _this.page_now * _this.page_per);
-        },
+        // merchants_mid: function(val, oldVal) {
+        //     var _this = this;
+        //     _this.pages_all = _this.merchants_mid.length;
+        //     _this.page_now = 1;
+        //     _this.merchants_now = _this.merchants_mid.slice(0, _this.page_now * _this.page_per);
+        // },
     },
     methods: {
         //监听toast是否可见的值得变化
@@ -169,7 +179,6 @@ export default {
                 'mchnt_e_join_dtm': _this.searchkey.etime,
                 'qd_uid': _this.searchkey.id,
                 'qd_name': _this.searchkey.name,
-                'qd_status': _this.searchkey.slsm_uid,
             };
             this.$http.get(this.list_url, {
                     'params': post_data,
@@ -249,6 +258,26 @@ export default {
             // }
             // return _this.merchants_mid;
             this.get_list();
+        },
+        //下载
+        download_sub: function() {
+            let _this = this;
+            let post_data = {
+                'mchnt_uid': _this.searchkey.userid,
+                'mchnt_name': _this.searchkey.shopname,
+                'mchnt_mobile': _this.searchkey.mobile,
+                'mchnt_s_join_dtm': _this.searchkey.stime,
+                'mchnt_e_join_dtm': _this.searchkey.etime,
+                'qd_uid': _this.searchkey.id,
+                'qd_name': _this.searchkey.name,
+            };
+            let url = this.down_url + '?';
+            let data;
+            for (data in post_data) {
+                url += data + '=' + post_data[data] + '&';
+            }
+            url=url.substr(0,url.length-1);
+            window.open(url);
         },
         //清空并刷新--更改成ajax提交，取消使用
         fresh_sub: function() {

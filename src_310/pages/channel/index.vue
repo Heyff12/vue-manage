@@ -55,6 +55,30 @@
                                     </el-form-item>
                                 </el-col>
                                 <el-col :xs="24" :sm="24" :md="12" :lg="8">
+                                    <el-form-item label="国家" prop="country">
+                                        <el-select v-model="base.country" placeholder="请选择国家">
+                                            <el-option v-for="channel in countries.records" v-bind:value="channel.code" v-bind:label="channel.text">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :xs="24" :sm="24" :md="12" :lg="8">
+                                    <el-form-item label="时区" prop="timezone">
+                                        <el-select v-model="base.timezone" placeholder="请选择时区">
+                                            <el-option v-for="channel in timezones.records" v-bind:value="channel" v-bind:label="channel">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :xs="24" :sm="24" :md="12" :lg="8">
+                                    <el-form-item label="币种" prop="currency">
+                                        <el-select v-model="base.currency" placeholder="请选择币种">
+                                            <el-option v-for="channel in currencys.records" v-bind:value="channel.code" v-bind:label="channel.text">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :xs="24" :sm="24" :md="12" :lg="8">
                                     <el-form-item label="注册邮箱" prop="email">
                                         <el-input v-model="base.email"></el-input>
                                     </el-form-item>
@@ -379,14 +403,8 @@
     </div>
 </template>
 <script>
-import load from '../../components/load'
-import toast from '../../components/toast'
 export default {
     name: 'channel_index',
-    components: {
-        load,
-        toast,
-    },
     data() {
         var checkamt = (rule, value, callback) => {
             if (!value) {
@@ -433,6 +451,9 @@ export default {
             products: [], //ajax获取
             userid: "", // 渠道预注册接口返回的userid, hashids.encode之后的userid//ajax获取
             city_id: '',
+            countries: {}, //ajax获取
+            timezones: {}, //ajax获取
+            currencys: {}, //ajax获取
             base: {
                 "email": "", // 注册邮箱
                 "type": '', // 渠道类型: 1 白牌, 2 联名
@@ -457,6 +478,9 @@ export default {
                 "icon_url": "/qudao/v1/static/login/img/ic_img.png", // 企业ICON
                 "business_license_url": "/qudao/v1/static/login/img/ic_img.png", // 营业执照
                 "bank_account_url": "/qudao/v1/static/login/img/ic_img.png", // 开户许可证
+                "country": "", // 国家
+                "timezone": "", // 时区
+                "currency": "", // 币种
             },
             account: {
                 "bankaccount": "", // 收款账户(网点账户号)
@@ -477,6 +501,9 @@ export default {
             product: [], // 要开通的增值产品(product_id)列表
             headbankid: '', //中间值-总行id
             qd_types_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/qd_types', //渠道类型
+            qd_country_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/countries', //国家
+            qd_timezone_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/timezones', //时区
+            qd_currency_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/currencies', //币种
             qd_areacities_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/areacities', //省份城市列表
             qd_headbanks_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/headbanks', //银行总行列表
             qd_branchbanks_url: location.protocol + '//' + location.host + '/qudao/v1/api/tools/branchbanks', //银行支行列表
@@ -623,6 +650,21 @@ export default {
                     message: '图片格式为“png/jpg/jepg”,不能大于10M!',
                     trigger: 'change'
                 }],
+                country: [{
+                    required: true,
+                    message: '请选择国家',
+                    trigger: 'change'
+                }],
+                timezone: [{
+                    required: true,
+                    message: '请选择时区',
+                    trigger: 'change'
+                }],
+                currency: [{
+                    required: true,
+                    message: '请选择币种',
+                    trigger: 'change'
+                }],
             },
             rules_account: {
                 bankuser: [{
@@ -713,7 +755,10 @@ export default {
         }
     },
     created: function() {
-        this.get_qdtypes(); //获取渠道类型       
+        this.get_qdtypes(); //获取渠道类型  
+        this.get_country(); //获取国家 
+        this.get_timezone(); //获取时区 
+        this.get_currency(); //获取币种      
         this.get_banktypes(); //获取结算类型       
         this.get_cycle(); //获取结算方式      
         this.get_area(); //获取省份城市 
@@ -1069,6 +1114,7 @@ export default {
                         _this.toastmsg = '保存成功！';
                         _this.visible_toast = true;
                     } else {
+                        _this.account.settle_base_amt = (_this.account.settle_base_amt / 100).toFixed(0); //起结金额单位还原成元
                         if (data_return.respmsg) {
                             _this.toastmsg = data_return.respmsg;
                         } else {
@@ -1077,11 +1123,13 @@ export default {
                         _this.visible_toast = true;
                     }
                 }, function(response) {
+                    _this.account.settle_base_amt = (_this.account.settle_base_amt / 100).toFixed(0); //起结金额单位还原成元
                     _this.loading = false;
                     _this.visible_toast = true;
                     _this.toastmsg = '网络超时!';
                 })
                 .catch(function(response) {
+                    _this.account.settle_base_amt = (_this.account.settle_base_amt / 100).toFixed(0); //起结金额单位还原成元
                     _this.loading = false;
                 });
         },
@@ -1283,6 +1331,140 @@ export default {
             // };
             // //设置初始值
             // _this.base.type = _this.channels.default;
+        },
+        //获取国家
+        get_country: function() {
+            var _this = this;
+            this.$http.get(this.qd_country_url, {
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    var data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        _this.countries = data_return.data;
+                        //设置初始值
+                        _this.base.country = _this.countries.default;
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
+            // _this.countries = {
+            //     "records": [{
+            //         "code": "CN",
+            //         "text": "中国"
+            //     }, {
+            //         "code": "USA",
+            //         "text": "美国"
+            //     }, {
+            //         "code": "EN",
+            //         "text": "英国"
+            //     }],
+            //     "default": "CN"
+            // };
+            // //设置初始值
+            // _this.base.country = _this.countries.default;
+        },
+        //获取时区
+        get_timezone: function() {
+            var _this = this;
+            this.$http.get(this.qd_timezone_url, {
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    var data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        _this.timezones = data_return.data;
+                        //设置初始值
+                        _this.base.timezone = _this.timezones.default;
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
+            // _this.timezones = {
+            //     "records": [
+            //         "-1200", "-1100", "-1000", "+0800", "+1200", "+1300", "+1400"
+            //     ],
+            //     "default": "+0800"
+            // };
+            // //设置初始值
+            // _this.base.timezone = _this.timezones.default;
+        },
+        //获取币种
+        get_currency: function() {
+            var _this = this;
+            this.$http.get(this.qd_currency_url, {
+                    before: function() {
+                        _this.loading = true;
+                    }
+                })
+                .then(function(response) {
+                    _this.loading = false;
+                    var data_return = response.body;
+                    if (data_return.respcd == '0000') {
+                        _this.currencys = data_return.data;
+                        //设置初始值
+                        _this.base.currency = _this.currencys.default;
+                    } else {
+                        if (data_return.respmsg) {
+                            _this.toastmsg = data_return.respmsg;
+                        } else {
+                            _this.toastmsg = data_return.resperr;
+                        }
+                        _this.visible_toast = true;
+                    }
+                }, function(response) {
+                    _this.loading = false;
+                    _this.visible_toast = true;
+                    _this.toastmsg = '网络超时!';
+                })
+                .catch(function(response) {
+                    _this.loading = false;
+                });
+            // _this.currencys = {
+            //     "records": [{
+            //         "code": "156",
+            //         "text": "人民币"
+            //     }, {
+            //         "code": "344",
+            //         "text": "港币"
+            //     }, {
+            //         "code": "392",
+            //         "text": "日元"
+            //     }],
+            //     "default": "156"
+            // };
+            // //设置初始值
+            // _this.base.currency = _this.currencys.default;
         },
         //获取结算类型
         get_banktypes: function() {

@@ -2,26 +2,48 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 Vue.use(Vuex)
-    //登录状态配置 
+    //登录状态配置 ---sessionid--if_login  未使用
 export default new Vuex.Store({
         state: {
-            sessionid: GetCookie('sessionid') || '',//是否登陆
-            if_login: nowurl_if(),//是否在登陆页面
+            sessionid: GetCookie('sessionid') || '', //是否登陆
+            if_login: nowurl_if(), //是否在登陆页面
+            trade_detail: {
+                "qudao_uid": 0, // 渠道 userid
+                "qudao_name": "", // 渠道名
+                "mchnt_uid": 0, // 商户 userid
+                "mchnt_name": "", // 商户名
+                "trade_syssn": "", // 交易流水号
+                "trade_amt": 0, // 交易金额, 单位为分
+                "trade_fee": 0, // 手续费, 单位分
+                "trade_dtm": "", // 交易时间
+                "trade_type": "", // 交易类型
+                "trade_status": "", // 交易状态
+                "trade_msg": "", // 交易失败原因
+                "mchnt_mobile": "", // 手机号
+            }, //交易明细数据
+            login_no: false, //session是否过期，过期则提示当前未登录
         },
         mutations: {
             login(state) {
-                SetCookie('sessionid', 'yaya123344', 12);
+                //SetCookie('sessionid', 'yaya123344', 12);
                 state.sessionid = GetCookie('sessionid');
             },
             logout(state) {
-                deleteCookie('sessionid');
+                //deleteCookie('sessionid');
                 state.sessionid = GetCookie('sessionid');
             },
-            login_ify(state){
-                state.if_login=true;
+            login_ify(state) {
+                state.if_login = true;
             },
-            login_ifn(state){
-                state.if_login=false;
+            login_ifn(state) {
+                state.if_login = false;
+            },
+            t_detail(state, obj) {
+                state.trade_detail = obj;
+                //console.log(state.trade_detail);
+            },
+            t_login_no(state, obj) {
+                state.login_no = obj;
             },
         }
     })
