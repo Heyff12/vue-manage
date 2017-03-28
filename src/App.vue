@@ -27,7 +27,7 @@
                         </el-submenu>
                         <el-submenu index="4">
                             <template slot="title"><i class="icon_left icon_slsm_w"></i>业务员管理</template>
-                            <el-menu-item index="3-1" route="/salesman_index">业务员管理</el-menu-item>
+                            <el-menu-item index="4-1" route="/salesman_index">业务员管理</el-menu-item>
                         </el-submenu>
                     </el-menu>
                     <div class="clearfix"></div>
